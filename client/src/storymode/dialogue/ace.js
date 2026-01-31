@@ -4,8 +4,8 @@ const aceDialogue = {
     nodes: {
         intro: {
             segments: [
-                { speaker: "ace", text: "Detective {{playerName}}, are you ready to go?" },
-                { speaker: "", text: "If you say YES, you'll start the investigation and won’t be able to return to the police department." },
+                { speaker: "ace", text: "Detective {{playerName}}, are you ready to go?", voice: "intro_01"},
+                {text: "If you say YES, you'll start the investigation and won't be able to return to the police department." },
             ],
             choices: [
                 { label: "Yes", next: "start_investigation" },
@@ -15,7 +15,7 @@ const aceDialogue = {
         start_investigation: {
              set: { flagsAdd: ["started_investigation"] },
             segments: [
-                { speaker: "ace", text: "Okay good luck." },
+                { speaker: "ace", text: "Okay, good luck.", voice: "intro_02" },
             ],
             onEnter: (state) => {
                 state.flags.add("cutscene_leave_pd");

@@ -11,7 +11,7 @@ const bobbyMarcusDialogue = {
             ],
             choices: [
                 { label: "Hello?", next: "cant_speak" },
-                { label: "[Leave]", next: "Hello?" },
+                { label: "[Leave]", next: "end_02" },
             ]
         },
 
@@ -19,20 +19,20 @@ const bobbyMarcusDialogue = {
             segments: [
                 {
                     speaker: "Bobby",
-                    text: "Um- sorry they said I couldn't speak to you",
+                    text: "Um—sorry, they said I couldn't speak to you.",
                     voice: "intro_01",
                 }
             ],
             choices: [
-                { label: "Who did?", next: "who" },
-                { label: "Okay I understand", next: "end" },
+                { label: "Who said that?", next: "who" },
+                { label: "[End conversation]", next: "end_02" },
             ]
         },
         who: {
             segments: [
                 {
                     speaker: "bobby",
-                    text: "Detective Marcus did",
+                    text: "Detective Marcus did.",
                     voice: "who",
                 },
                 {
@@ -41,16 +41,17 @@ const bobbyMarcusDialogue = {
                     voice: "lying_02",
                 },
             ],
+            set: { flagsAdd: ["HasMetBobby"] },
             choices: [
-                { label: "Who did?", next: "lying" },
-                { label: "Okay I'll go", next: "late_leave" },
+                { label: "That sounds like a lie.", next: "lying" },
+                { label: "Alright. I'm leaving.", next: "late_leave" },
             ]
         },
         lying: {
             segments: [
                 {
                     speaker: "bobby",
-                    text: "No, I'm not lying I swear ask him yourself.",
+                    text: "No, I'm not lying. I swear—ask him yourself.",
                     voice: "lying_01",
                 },
                 {
@@ -60,8 +61,12 @@ const bobbyMarcusDialogue = {
                 },
                 {
                     speaker: "bobby",
-                    text: "Great. Just great.",
+                    text: "Wow. Great. Just great.",
                     voice: "marcus_appers",
+                },
+                {
+                    text: "",
+                    cutscene: "marcus_enters",
                 },
                 {
                     speaker: "marcus",
@@ -70,7 +75,7 @@ const bobbyMarcusDialogue = {
                 },
                 {
                     speaker: "bobby",
-                    text: "I know but-",
+                    text: "I know, but—",
                     voice: "rep",
                 },
                 {
@@ -84,18 +89,41 @@ const bobbyMarcusDialogue = {
                     voice: "leaves",
                 },
             ],
+            set: { flagsAdd: ["HasMetBobby"] },
             choices: [
-                { label: "Overreation huh?", next: "overreacted" },
-                { label: "What did you tell him", next: "explanation" },
+                {
+                    label: "Seems like a bit of an overreaction.",
+                    next: "overreacted",
+                    set: { flagsAdd: ["asked_overreacted"] },
+                    requires: { notFlags: ["asked_overreacted"] }
+                },
+                {
+                    label: "What did you tell him?",
+                    next: "explanation",
+                    set: { flagsAdd: ["asked_explanation"] },
+                    requires: { notFlags: ["asked_explanation"] }
+                },
+                {
+                    label: "Relax, Marcus. Some of us actually get results.",
+                    next: "taunted",
+                    set: { flagsAdd: ["did_taunt"] },
+                    requires: { notFlags: ["did_taunt"] }
+                },
+                {
+                    label: "You're just mad I get things done.",
+                    next: "mad_end",
+                    requires: { flagsAll: ["did_taunt"] }
+                },
                 { label: "[Leave]", next: "end" },
             ]
+
         },
         late_leave: {
             segments: [
                 {
                     speaker: "bobby",
-                    text: "PLease just leave me be, I don't want to lose my job.",
-                    voice: "lying_01",
+                    text: "Please just leave me be. I don't want to lose my job.",
+                    voice: "job",
                 },
                 {
                     speaker: "marcus",
@@ -104,8 +132,12 @@ const bobbyMarcusDialogue = {
                 },
                 {
                     speaker: "bobby",
-                    text: "Great. Just great.",
+                    text: "Wow. Great. Just great.",
                     voice: "marcus_appers",
+                },
+                {
+                    text: "",
+                    cutscene: "marcus_enters",
                 },
                 {
                     speaker: "marcus",
@@ -114,7 +146,7 @@ const bobbyMarcusDialogue = {
                 },
                 {
                     speaker: "bobby",
-                    text: "I know but-",
+                    text: "I know, but—",
                     voice: "rep",
                 },
                 {
@@ -129,17 +161,38 @@ const bobbyMarcusDialogue = {
                 },
             ],
             choices: [
-                { label: "Overreation huh?", next: "overreacted" },
-                { label: "What did you tell him", next: "explanation" },
-                { label: "taunted", next: "taunted" },
+                {
+                    label: "Seems like a bit of an overreaction.",
+                    next: "overreacted",
+                    set: { flagsAdd: ["asked_overreacted"] },
+                    requires: { notFlags: ["asked_overreacted"] }
+                },
+                {
+                    label: "What did you tell him?",
+                    next: "explanation",
+                    set: { flagsAdd: ["asked_explanation"] },
+                    requires: { notFlags: ["asked_explanation"] }
+                },
+                {
+                    label: "Relax, Marcus. Some of us actually get results.",
+                    next: "taunted",
+                    set: { flagsAdd: ["did_taunt"] },
+                    requires: { notFlags: ["did_taunt"] }
+                },
+                {
+                    label: "You're just mad I get things done.",
+                    next: "mad_end",
+                    requires: { flagsAll: ["did_taunt"] }
+                },
                 { label: "[Leave]", next: "end" },
             ]
+
         },
         overreacted: {
             segments: [
                 {
                     speaker: "marcus",
-                    text: "No, I'm not over reacting.",
+                    text: "No, I'm not overreacting.",
                     voice: "overreact_01",
                 },
                 {
@@ -149,53 +202,105 @@ const bobbyMarcusDialogue = {
                 },
                 {
                     speaker: "marcus",
-                    text: "And I won't be having it with Bobby so just stay away from him.",
+                    text: "And I won't have it with Bobby, so stay away from him.",
                     voice: "overreact_03",
                 },
 
             ],
             choices: [
-                { label: "What did you tell him", next: "explanation" },
-                { label: "taunted", next: "taunted" },
+                {
+                    label: "What did you tell him?",
+                    next: "explanation",
+                    set: { flagsAdd: ["asked_explanation"] },
+                    requires: { notFlags: ["asked_explanation"] }
+                },
+                {
+                    label: "Relax, Marcus. Some of us actually get results.",
+                    next: "taunted",
+                    set: { flagsAdd: ["did_taunt"] },
+                    requires: { notFlags: ["did_taunt"] }
+                },
+                {
+                    label: "You're just mad I get things done.",
+                    next: "mad_end",
+                    requires: { flagsAll: ["did_taunt"] }
+                },
                 { label: "[Leave]", next: "end" },
             ]
+
         },
         taunted: {
             segments: [
                 {
                     speaker: "marcus",
-                    text: "See! This is exactly what I'm talking about, no respect at all.",
+                    text: "See! This is exactly what I'm talking about—no respect at all.",
                     voice: "taunted_01",
                 },
                 {
                     speaker: "marcus",
-                    text: "If I was the lieutenant I would have fired you months ago. People like you give cops a bad name.",
+                    text: "If I were the lieutenant, I would've had you fired months ago. People like you give cops a bad name.",
                     voice: "taunted_02",
                 },
             ],
             choices: [
-                { label: "Overreation huh?", next: "overreacted" },
-                { label: "What did you tell him", next: "explanation" },
-                { label: "taunted to mad end", next: "mad_end" },
+                {
+                    label: "Seems like a bit of an overreaction.",
+                    next: "overreacted",
+                    set: { flagsAdd: ["asked_overreacted"] },
+                    requires: { notFlags: ["asked_overreacted"] }
+                },
+                {
+                    label: "What did you tell him?",
+                    next: "explanation",
+                    set: { flagsAdd: ["asked_explanation"] },
+                    requires: { notFlags: ["asked_explanation"] }
+                },
+                {
+                    label: "You're just mad I get things done.",
+                    next: "mad_end",
+                    requires: { flagsAll: ["did_taunt"] }
+                },
                 { label: "[Leave]", next: "end" },
             ]
+
         },
         explanation: {
             segments: [
                 {
                     speaker: "marcus",
                     text: "I told him nothing good will come from hanging out with the likes of you.",
-                    voice: "taunted_01",
+                    voice: "explain_01",
                 },
                 {
                     speaker: "marcus",
-                    text: " I wouldn't want him picking up any bad habits.",
-                    voice: "taunted_02",
+                    text: "I wouldn't want him picking up any bad habits.",
+                    voice: "explain_02",
                 },
             ],
             choices: [
-                { label: "Overreation huh?", next: "overreacted" },
-                { label: "taunted", next: "taunted" },
+                {
+                    label: "Seems like a bit of an overreaction.",
+                    next: "overreacted",
+                    set: { flagsAdd: ["asked_overreacted"] },
+                    requires: { notFlags: ["asked_overreacted"] }
+                },
+                {
+                    label: "What did you tell him?",
+                    next: "explanation",
+                    set: { flagsAdd: ["asked_explanation"] },
+                    requires: { notFlags: ["asked_explanation"] }
+                },
+                {
+                    label: "Relax, Marcus. Some of us actually get results.",
+                    next: "taunted",
+                    set: { flagsAdd: ["did_taunt"] },
+                    requires: { notFlags: ["did_taunt"] }
+                },
+                {
+                    label: "You're just mad I get things done.",
+                    next: "mad_end",
+                    requires: { flagsAll: ["did_taunt"] }
+                },
                 { label: "[Leave]", next: "end" },
             ]
         },
@@ -203,12 +308,11 @@ const bobbyMarcusDialogue = {
             segments: [
                 {
                     speaker: "marcus",
-                    text: "You get things- No. im done with this. Thread very carefully detective.",
+                    text: "You get things—no. I'm done with this. Tread very carefully, detective.",
                     voice: "mad_end",
                 },
             ],
-            choices: [
-            ]
+            choices: [{ label: "[End conversation]", next: "end_01" },]
         },
         end: {
             segments: [
@@ -219,8 +323,21 @@ const bobbyMarcusDialogue = {
                 },
 
             ],
+            choices: [{ label: "[End conversation]", next: "end_01" },]
+        },
+        end_01: {
+            segments: [
+            ],
+            end: true,
+            endCutscene: "bobby_leaves",
             choices: []
-        }
+        },
+        end_02: {
+            segments: [
+            ],
+            end: true,
+            choices: []
+        },
     }
 };
 

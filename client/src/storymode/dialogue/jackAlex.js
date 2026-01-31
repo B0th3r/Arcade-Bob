@@ -15,8 +15,9 @@ const jackAlexDialogue = {
           voice: "intro_02",
         },
       ],
+      set: { flagsAdd: ["talkedToJackAlex"] },
       choices: [
-        { label: "odd", next: "odd_comment" },
+        { label: "They're lucky I didn't go further.", next: "odd_comment" },
         { label: "I'm good", next: "good" },
         { label: "...", next: "silence" },
       ]
@@ -84,7 +85,7 @@ const jackAlexDialogue = {
         },
       ],
       choices: [
-        { label: "I am not news buddy", next: "bad_end" },
+        { label: "I'm not a source of entertainment buddy.", next: "bad_end" },
         { label: "Bye.", next: "good_end" },
       ]
     },
@@ -106,8 +107,7 @@ const jackAlexDialogue = {
           voice: "exit",
         },
       ],
-      choices: [
-      ]
+      choices: [{ label: "[End conversation]", next: "end_01" },]
     },
     good_end: {
       segments: [
@@ -117,8 +117,14 @@ const jackAlexDialogue = {
           voice: "exit",
         },
       ],
-      choices: []
-    }
+      choices: [{ label: "[End conversation]", next: "end" },]
+    },
+       end: {
+            segments: [
+            ],
+            end: true,
+            choices: []
+        }
   }
 };
 

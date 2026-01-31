@@ -20,11 +20,18 @@ const lucasDialogue = {
                 { label: "Thanks, I'll be leaving now", next: "tries_to_leave" },
             ]
         },
+        return_visit: {
+            segments: [
+                { speaker: "lucas", text: "..." }
+            ],
+             choices: [{ label: "Fine I'll do it", next: "favor_accept" , requires: { notFlags: ["talkedToLucas"] },},
+             { label: "[End conversation]", next: "end" }],
+        },
         rude_open: {
             segments: [
                 {
                     speaker: "lucas",
-                    text: "woah man relax, I'm on your side",
+                    text: "Woah man relax, I'm on your side",
                     voice: "rude",
                 },
             ],
@@ -41,8 +48,8 @@ const lucasDialogue = {
                 },
             ],
             choices: [
-                { label: "no", next: "favor_reject" },
-                { label: "okay", next: "favor_accept" },
+                { label: "No, sorry.", next: "end" },
+                { label: "Fine.", next: "favor_accept" },
             ]
         },
         favor_reject: {
@@ -54,10 +61,11 @@ const lucasDialogue = {
                 },
             ],
             choices: [
-               
+
             ]
         },
         favor_accept: {
+            set: { flagsAdd: ["talkedToLucas"] },
             segments: [
                 {
                     speaker: "lucas",
@@ -76,10 +84,10 @@ const lucasDialogue = {
                 },
             ],
             choices: [
-                { label: "flowers", next: "flowers" },
+                { label: "Flowers", next: "flowers" },
                 { label: "A gun", next: "gun" },
                 { label: "poem", next: "poem_01" },
-                { label: "a key", next: "key" },
+                { label: "A key. Women love metaphors. Trust me.", next: "key" },
                 { label: "chocolate", next: "chocolate" },
             ]
         },
@@ -88,14 +96,14 @@ const lucasDialogue = {
                 {
                     speaker: "lucas",
                     text: "flowers? I suppose that could work",
-                    voice: "flowers",
+                    voice: "Flowers",
                 },
             ],
             choices: [
-                { label: "flowers", next: "flowers" },
+                { label: "Flowers", next: "flowers" },
                 { label: "A gun", next: "gun" },
                 { label: "poem", next: "poem_01" },
-                { label: "a key", next: "key" },
+                { label: "A key. Women love metaphors. Trust me.", next: "key" },
                 { label: "chocolate", next: "chocolate" },
             ]
         },
@@ -113,10 +121,10 @@ const lucasDialogue = {
                 },
             ],
             choices: [
-                { label: "flowers", next: "flowers" },
+                { label: "Flowers", next: "flowers" },
                 { label: "A gun", next: "gun" },
                 { label: "poem", next: "poem_01" },
-                { label: "a key", next: "key" },
+                { label: "A key. Women love metaphors. Trust me.", next: "key" },
                 { label: "chocolate", next: "chocolate" },
             ]
         },
@@ -129,10 +137,10 @@ const lucasDialogue = {
                 },
             ],
             choices: [
-                { label: "flowers", next: "flowers" },
+                { label: "Flowers", next: "flowers" },
                 { label: "A gun", next: "gun" },
                 { label: "poem", next: "poem_01" },
-                { label: "a key", next: "key" },
+                { label: "A key. Women love metaphors. Trust me.", next: "key" },
                 { label: "chocolate", next: "chocolate" },
             ]
         },
@@ -150,10 +158,10 @@ const lucasDialogue = {
                 },
             ],
             choices: [
-                { label: "flowers", next: "flowers" },
+                { label: "Flowers", next: "flowers" },
                 { label: "A gun", next: "gun" },
                 { label: "poem", next: "poem_01" },
-                { label: "a key", next: "key" },
+                { label: "A key. Women love metaphors. Trust me.", next: "key" },
                 { label: "chocolate", next: "chocolate" },
             ]
         },
@@ -245,11 +253,12 @@ const lucasDialogue = {
 
         poem_recite: {
             segments: [
-                { speaker: "lucas", text: "Alright I'll go read it to her, come with me", voice: "going_to_maya" },
+                { text: "(continue)" },
                 { speaker: "lucas", text: "Hello Detective Maya", voice: "reading_01" },
-                { speaker: "maya", text: "oh, hi lucas and what are you two doing?", voice: "" },
+                { speaker: "maya", text: "oh, hi lucas and {{playerName}} what are you two doing here?", voice: "intro_01" },
                 { speaker: "lucas", text: "I would like to read this poem to you.", voice: "reading_02" },
-                { speaker: "lucas", text: "I call this the poem of love.", voice: "reading_03" },
+                { speaker: "maya", text: "Oh really? Let's hear it", voice: "intro_02" },
+                { speaker: "lucas", text: "I call this the poem. The poem of love.", voice: "reading_03" },
 
                 // Line 1
                 { speaker: "lucas", text: "The wind moves the grass before it touches the hill.", voice: "poem_grass_01", requires: { flagsAll: ["poem_line1_A"] } },
@@ -273,28 +282,55 @@ const lucasDialogue = {
                 { speaker: "maya", text: "..." },
 
                 // good poem path
-                { speaker: "maya", text: "", voice: "good_poem_01", requires: { flagsAll: ["poem_grade_good"] } },
-                { speaker: "maya", text: "", voice: "good_poem_02", requires: { flagsAll: ["poem_grade_good"] } },
+                { speaker: "maya", text: "hm, that was actually pretty good I have to admit", voice: "good_poem_01", requires: { flagsAll: ["poem_grade_good"] } },
                 { speaker: "lucas", text: "Really?", voice: "really", requires: { flagsAll: ["poem_grade_good"] } },
-                { speaker: "maya", text: "", voice: "good_poem_01", requires: { flagsAll: ["poem_grade_good"] } },
-                { speaker: "maya", text: "", voice: "good_poem_02", requires: { flagsAll: ["poem_grade_good"] } },
+                { speaker: "maya", text: "Yeah, granted I didn't understand it but it was sweet.", voice: "decent_poem_02", requires: { flagsAll: ["poem_grade_good"] } },
+                { speaker: "maya", text: "I actually I have to go but lets talk more later", voice: "good_poem_02", requires: { flagsAll: ["poem_grade_good"] } },
                 { speaker: "lucas", text: "Okay, see you.", voice: "maya_leaves", requires: { flagsAll: ["poem_grade_good"] } },
                 { speaker: "lucas", text: "That went great, detective. Now I have to think about my next move", voice: "poem_result_good_01", requires: { flagsAll: ["poem_grade_good"] } },
                 { speaker: "lucas", text: "Leave me.", voice: "poem_result_good_02", requires: { flagsAll: ["poem_grade_good"] } },
 
-                 // decent poem path
-                { speaker: "maya", text: "", voice: "decent_poem_01", requires: { flagsAll: ["poem_grade_decent"] } },
-                { speaker: "maya", text: "", voice: "decent_poem_02", requires: { flagsAll: ["poem_grade_decent"] } },
-                { speaker: "lucas", text: "Really?", voice: "really", requires: { flagsAll: ["poem_grade_decent"] } },
-
-                 // bad poem path
-                { speaker: "maya", text: "", voice: "bad_poem", requires: { flagsAll: ["poem_grade_bad"] } },
-
+                // bad poem path
+                { speaker: "maya", text: "that was the worst poem I have ever listened to", voice: "bad_poem_01", requires: { flagsAll: ["poem_grade_bad"] } },
+                { speaker: "maya", text: "I mean seriously What did any of that even mean just get out of my face.", voice: "bad_poem_02", requires: { flagsAll: ["poem_grade_bad"] } },
+                { text: "...", requires: { flagsAll: ["poem_grade_bad"] }, cutscene: "maya_leaves", },
+                { speaker: "lucas", text: "Okay, see you.", voice: "maya_leaves", requires: { flagsAll: ["poem_grade_bad"] } },
+                { text: "...", requires: { flagsAll: ["poem_grade_bad"] }, },
+                { speaker: "lucas", text: "What the hell was that detective! You said that would have worked.", voice: "poem_result_bad_01", requires: { flagsAll: ["poem_grade_bad"] } },
             ],
             choices: [
-                { label: "[Continue]", next: "poem_result_good", requires: { flagsAll: ["poem_grade_good"] } },
-                { label: "[Continue]", next: "poem_result_decent", requires: { flagsAll: ["poem_grade_decent"] } },
-                { label: "[Continue]", next: "poem_result_bad" }
+                { label: "[Leave]", next: "end", requires: { flagsAll: ["poem_grade_good"] }, set: { flagsAdd: ["poem_passed"] } },
+                { label: "Maybe you should have read it better", next: "bad_poem_fallout", requires: { flagsAll: ["poem_grade_bad"] } },
+                { label: "Sorry about that.", next: "bad_end", requires: { flagsAll: ["poem_grade_bad"] } },
+            ]
+        },
+        bad_poem_fallout: {
+            segments: [
+                { speaker: "lucas", text: "What-", voice: "poem_result_bad_02" },
+                { speaker: "lucas", text: "You want to know what I think.", voice: "poem_result_bad_03" },
+                { speaker: "lucas", text: "That you purposely sabotaged me! Because you secretly want Maya.", voice: "poem_result_bad_04" }
+            ],
+            choices: [
+                {
+                    label: "This is ridiculous, I don't want Maya.",
+                    next: "bad_end",
+                },
+                {
+                    label: "Yeah your right.",
+                    next: "bad_end",
+                },
+            ]
+        },
+        bad_end: {
+            segments: [
+                { speaker: "lucas", text: "Whatever, I'm done here. Stay away from me, detective.", voice: "bad_end" }
+            ],
+            choices: [
+                {
+                    label: "[End conversation]",
+                    next: "end",
+                    set: { flagsAdd: ["poem_failed"] }
+                },
             ]
         },
         poem_evaluate: {
@@ -348,10 +384,20 @@ const lucasDialogue = {
                 if (pickedThemesCount === 4) coherencePenalty = 3;
 
                 const finalScore = qualityScore + coherenceBonus - coherencePenalty;
-                if (finalScore >= 8) state.flags.add("poem_grade_good");
-                else if (finalScore >= 4) state.flags.add("poem_grade_decent");
+                if (finalScore >= 7) state.flags.add("poem_grade_good");
                 else state.flags.add("poem_grade_bad");
             },
+            segments: [
+            ],
+
+            choices: [
+                {
+                    label: "[Continue]",
+                    next: "poem_feedback_01",
+                },
+            ]
+        },
+        poem_feedback_01: {
             segments: [
                 {
                     speaker: "lucas",
@@ -366,12 +412,6 @@ const lucasDialogue = {
                 },
                 {
                     speaker: "lucas",
-                    text: "Nice this will do",
-                    voice: "decent_poem",
-                    requires: { flagsAll: ["poem_grade_decent"] },
-                },
-                {
-                    speaker: "lucas",
                     text: "Um. This seems a bit off doesn't it.",
                     voice: "bad_poem",
                     requires: { flagsAll: ["poem_grade_bad"] },
@@ -380,31 +420,52 @@ const lucasDialogue = {
 
             choices: [
                 {
-                    label: "Okay its all done",
-                    next: "poem_recite",
+                    label: "Too easy",
+                    next: "poem_feedback_02",
                     requires: { flagsAll: ["poem_grade_good"] },
                 },
                 {
-                    label: "Okay its all done",
-                    next: "poem_recite",
+                    label: "You should give it to Maya",
+                    next: "poem_feedback_02",
                     requires: { flagsAll: ["poem_grade_decent"] },
                 },
                 {
                     label: "Don't worry it'll be fine",
+                    next: "poem_feedback_02",
+                    requires: { flagsAll: ["poem_grade_bad"] },
+                }
+            ]
+        },
+        poem_feedback_02: {
+            onEnter: (state) => {
+                state.flags.add("cutscene_going_to_maya");
+            },
+            segments: [
+                { speaker: "lucas", text: "Alright I'll go read it to her, come with me", voice: "going_to_maya" },
+            ],
+
+            choices: [
+                {
+                    label: "[Continue]",
+                    next: "poem_recite",
+                    requires: { flagsAll: ["poem_grade_good"] },
+                },
+                {
+                    label: "[Continue]",
+                    next: "poem_recite",
+                    requires: { flagsAll: ["poem_grade_decent"] },
+                },
+                {
+                    label: "[Continue]",
                     next: "poem_recite",
                     requires: { flagsAll: ["poem_grade_bad"] },
                 }
             ]
         },
-
         end: {
             segments: [
-                {
-                    speaker: "hayes",
-                    text: "Alright",
-                    voice: "end"
-                },
             ],
+            end: true,
             choices: []
         }
     }

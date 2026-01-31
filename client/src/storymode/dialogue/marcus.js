@@ -4,7 +4,7 @@ const marcusDialogue = {
     intro: {
       set: { flagsAdd: ["marcus_comforts_bobby_bar"] },
       segments: [
-        { speaker: "marcus", text: "fancy seeing you here detective...", voice: "intro_01" },
+        { speaker: "marcus", text: "Fancy seeing you here detective...", voice: "intro_01" },
         { speaker: "marcus", text: "What are you doing here?", voice: "intro_02" },
       ],
       choices: [

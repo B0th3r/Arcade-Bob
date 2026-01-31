@@ -6,13 +6,13 @@ const bobbyDialogue = {
       segments: [
         {
           speaker: "bobby",
-          text: "Are you sure you didn't hear any chatter on a secret gambling den?",
+          text: "Are you sure you didn't hear any chatter about a secret gambling den?",
           voice: "city_01",
         },
         {
           speaker: "delivery_girl",
           text:
-            "Yes I'm sure. Can I leave already, detective? I still have a couple of deliveries to make in Patient Grove.",
+            "Yes, I'm sure. Can I leave already, detective? I still have a couple of deliveries to make in Patient Grove.",
           voice: "city_02",
         },
         {
@@ -23,8 +23,8 @@ const bobbyDialogue = {
         },
       ],
       choices: [
-        { label: "Did you say Patient Grove?", next: "grove" },
-        { label: "What's happening here, Bobby?", next: "invest_intro", set: { flagsAdd: ["bobby_recognized"] } },
+        { label: "Patient Grove?", next: "grove" },
+        { label: "What's going on here, Bobby?", next: "invest_intro", set: { flagsAdd: ["bobby_recognized"] } },
       ],
     },
 
@@ -34,11 +34,11 @@ const bobbyDialogue = {
           speaker: "bobby",
           text: "Oh detective, you're back. Please help me, she's not cracking.",
           voice: "return_city",
-          requires: {notFlags: ["bobby_investigation_bar"]}
+          requires: { notFlags: ["bobby_investigation_bar"] }
         },
       ],
       choices: [
-        { label: "Let's do it.", next: "questioning_02", requires: {notFlags: ["bobby_investigation_bar"]} },
+        { label: "Alright. Let's do it.", next: "questioning_02", requires: { notFlags: ["bobby_investigation_bar"] } },
         { label: "[End conversation]", next: "end" },
       ],
     },
@@ -52,7 +52,7 @@ const bobbyDialogue = {
         },
         {
           speaker: "bobby",
-          text: "Wait a second, aren't you {{playerName}}",
+          text: "Wait a second, aren't you {{playerName}}?",
           voice: "recognized_01",
           requires: { notFlags: ["HasMetBobby", "bobby_recognized"] },
         },
@@ -64,7 +64,7 @@ const bobbyDialogue = {
         },
       ],
       choices: [
-        { label: "I need to ask you a few questions.", next: "questioning_block", set: { flagsAdd: ["bobby_recognized"] } },
+        { label: "I need to ask you some questions.", next: "questioning_block", set: { flagsAdd: ["bobby_recognized"] } },
         { label: "What's happening here, Bobby?", next: "invest_intro", set: { flagsAdd: ["bobby_recognized"] } },
         { label: "[End conversation]", next: "end" },
       ],
@@ -79,12 +79,12 @@ const bobbyDialogue = {
         },
         {
           speaker: "bobby",
-          text: "This delivery girl knows something I'm sure of it.",
+          text: "This delivery girl knows something. I'm sure of it.",
           voice: "case_02",
         },
         {
           speaker: "bobby",
-          text: "Wait a second, aren't you {{playerName}}",
+          text: "Wait a second, aren't you {{playerName}}?",
           voice: "recognized_01",
           requires: { notFlags: ["HasMetBobby", "bobby_recognized"] },
         },
@@ -96,8 +96,8 @@ const bobbyDialogue = {
         },
       ],
       choices: [
-        { label: "I need to ask her a few questions.", next: "questioning_block", set: { flagsAdd: ["bobby_recognized"] } },
-        { label: "Where is Marcus now?", next: "marcus", set: { flagsAdd: ["bobby_recognized"] } },
+        { label: "Let me question her.", next: "questioning_block", set: { flagsAdd: ["bobby_recognized"] } },
+        { label: "Where's Marcus?", next: "marcus", set: { flagsAdd: ["bobby_recognized"] } },
         { label: "[End conversation]", next: "end" },
       ],
     },
@@ -122,8 +122,8 @@ const bobbyDialogue = {
         },
       ],
       choices: [
-        { label: "Okay, I'll help out.", next: "questioning" },
-        { label: "Nah, I'm good.", next: "reject" },
+        { label: "Fine. I'll help.", next: "questioning" },
+        { label: "No. Not my problem.", next: "reject" },
       ],
     },
 
@@ -132,25 +132,25 @@ const bobbyDialogue = {
         { speaker: "bobby", text: "Thank you.", voice: "thanks_drink" },
         {
           speaker: "bobby",
-          text: "I won't say anything to Marcus, I swear.",
+          text: "I won't say anything to Marcus. I swear.",
           voice: "block_04",
           requires: { notFlags: ["HasMetBobby", "bobby_recognized"] },
         },
         { speaker: "delivery_girl", text: "Please hurry.", voice: "hurry" },
       ],
       choices: [
-        { label: "So you make deliveries at Patient Grove, huh?", next: "grove_questioning" },
-        { label: "You know any shady places around here?", next: "shady" },
-
+        { label: "You deliver to Patient Grove, right?", next: "grove_questioning" },
+        { label: "Know any shady places around here?", next: "shady" },
       ],
     },
+
     questioning_02: {
       segments: [
         { speaker: "delivery_girl", text: "Please hurry.", voice: "hurry" },
       ],
       choices: [
-        { label: "So you make deliveries at Patient Grove, huh?", next: "grove_questioning" },
-        { label: "You know any shady places around here?", next: "shady" },
+        { label: "You deliver to Patient Grove, right?", next: "grove_questioning" },
+        { label: "Know any shady places around here?", next: "shady" },
       ],
     },
 
@@ -162,43 +162,43 @@ const bobbyDialogue = {
       ],
       set: { flagsAdd: ["bobby_bar_lead"] },
       choices: [
-        { label: "Good. We'll check the bar.", next: "invest_end", requires: { flagsAll: ["bobby_bar_lead", "delivery_girl_grove_nothing"], }, },
-        { label: "So you make deliveries at Patient Grove, huh?", next: "grove_questioning", requires: { notFlags: ["delivery_girl_grove_nothing"], } },
+        { label: "Good lead. We'll check the bar.", next: "invest_end", requires: { flagsAll: ["bobby_bar_lead", "delivery_girl_grove_nothing"] } },
+        { label: "Back to Patient Grove deliveries.", next: "grove_questioning", requires: { notFlags: ["delivery_girl_grove_nothing"] } },
       ],
     },
 
     grove_questioning: {
       segments: [
         { speaker: "delivery_girl", text: "Yes, what about it?", voice: "grove_02" },
-        { speaker: "delivery_girl", text: "I do a couple times a week.", voice: "grove_03" },
+        { speaker: "delivery_girl", text: "I do, a couple times a week.", voice: "grove_03" },
       ],
       choices: [
         {
-          label: "There's been a robbery there have you seen anything suspicious lately?",
+          label: "There was a robbery there. Seen anything suspicious?",
           next: "grove_questioning_01",
         },
-        { label: "You know any shady places around here?.", next: "shady", requires: { notFlags: ["bobby_bar_lead"], } },
+        { label: "Know any shady places around here?", next: "shady", requires: { notFlags: ["bobby_bar_lead"] } },
       ],
     },
 
     grove_questioning_01: {
       segments: [
         { speaker: "delivery_girl", text: "Nothing out of the ordinary.", voice: "grove_04" },
-        { speaker: "bobby", text: "This is what I mean she's holding out on you, detective.", voice: "holding" },
+        { speaker: "bobby", text: "This is what I mean—she's holding out on you, detective.", voice: "holding" },
         { speaker: "delivery_girl", text: "I'm not. I really don't see much there.", voice: "grove_05" },
       ],
       set: { cluesAdd: ["delivery_girl_grove_nothing"] },
       choices: [
-        { label: "Alright. that's all I needed", next: "invest_end" },
-        { label: "You know any shady places around here?.", next: "shady", requires: { notFlags: ["bobby_bar_lead"], } },
+        { label: "Alright. That's all I needed.", next: "invest_end" },
+        { label: "Know any shady places around here?", next: "shady", requires: { notFlags: ["bobby_bar_lead"] } },
       ],
     },
 
     marcus: {
       segments: [{ speaker: "bobby", text: "He's… running late.", voice: "marcus" }],
       choices: [
-        { label: "Then I'll handle this. Let me question her.", next: "questioning_block" },
-        { label: "Okay, I'll go.", next: "late_leave", set: { flagsAdd: ["bobby_recognized"] } },
+        { label: "Then I'll handle this.", next: "questioning_block" },
+        { label: "Got it. I'm leaving.", next: "late_leave", set: { flagsAdd: ["bobby_recognized"] } },
       ],
     },
 
@@ -209,7 +209,7 @@ const bobbyDialogue = {
 
     invest_end: {
       segments: [
-        { speaker: "bobby", text: "Alright you can go.", voice: "case_03" },
+        { speaker: "bobby", text: "Alright, you can go.", voice: "case_03" },
         {
           speaker: "bobby",
           text: "Thank you for the help. I'll continue my investigation at the bar.",

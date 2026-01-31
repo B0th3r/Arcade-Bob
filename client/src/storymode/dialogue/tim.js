@@ -7,80 +7,142 @@ const timDialogue = {
       segments: [
         {
           speaker: "tim",
-          text: "Detective. Make it quick. I have actual things to do."
+          text: "Detective. Make it quick. I have actual things to do.",
+          voice: "intro_01"
         }
       ],
       choices: [
         { label: "I have some questions about the thefts on this street.", next: "baseline" },
-        { label: "You jog mornings, right? Need your perspective.", next: "jogging_start" },
-        { label: "Lose the attitude, Tim.", next: "player_pushes_first"}
+        { label: "You jog mornings, right? did you see anything?", next: "jogging_start" },
+        { label: "Lose the attitude, Tim.", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "Know any nice restaurants near here?", next: "places" },
+        { label: "I'll come back later", next: "good_end" },
       ]
     },
 
-
+    return_visit: {
+      segments: [
+        {
+          speaker: "tim",
+          text: "Oh great, you're back.",
+          voice: "intro_02",
+        }
+      ],
+      choices: [
+        { label: "I have some questions about the thefts on this street.", next: "baseline" },
+        { label: "You jog mornings, right? did you see anything?", next: "jogging_start" },
+        { label: "Lose the attitude, Tim.", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "Know any nice restaurants near here?", next: "places" },
+        { label: "I'll come back later", next: "good_end" },
+      ]
+    },
     baseline: {
       segments: [
         {
           speaker: "tim",
-          text: "Oh, the missing pocket change? Riveting case. I'm sure the city will give you a medal."
+          text: "Oh, the missing pocket change? Riveting case. I'm sure the city will give you a medal.",
+          voice: "robbery_ask"
         }
       ],
       choices: [
-        { label: "Do you know any detials about the robbery.", next: "two_thefts_comment" },
-        { label: "Cut the crap and answer.", next: "tim_bait_round1" }
+        { label: "Do you know any details about the robbery.", next: "robbery_detials" },
+        { label: "Cut the crap and answer.", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "I'll come back later", next: "good_end" },
       ]
     },
 
-
+    places: {
+      segments: [
+        {
+          speaker: "tim",
+          text: "You can't afford that.",
+          voice: "places_01"
+        },
+        {
+          speaker: "tim",
+          text: "How about you hangout with the other degenerates at the bar. It's in the city",
+          voice: "places_02"
+        }
+      ],
+      choices: [
+        { label: "I have some questions about the thefts on this street.", next: "baseline" },
+        { label: "You jog mornings, right? did you see anything?", next: "jogging_start" },
+        { label: "How about you show a little respect.", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "I'll come back later", next: "good_end" },
+      ]
+    },
     robbery_detials: {
       segments: [
         {
           speaker: "tim",
-          text: "All I know is, John got robbed and Jim got robbed."
+          text: "All I know is, John got robbed and Jim got robbed.",
+          voice: "details_01"
         },
         {
           speaker: "tim",
-          text: "Can I go now detective."
+          text: "Can I go now detective.",
+          voice: "details_02"
         }
       ],
       choices: [
-        { label: "", next: "john_robbery_info" },
-        { label: "Come on you can tell me more than that", next: "john_gf_fight" },
-        { label: "You seem to be in a hurry.", next: "tim_bait_round1" }
+        { label: "Can you tell me more about Jim", next: "jim" },
+        { label: "Do you know anything more on John", next: "john_gf_fight" },
+        { label: "You seem to be in a hurry.", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "I'll come back later", next: "good_end" },
       ]
     },
 
 
 
+    jim: {
+      segments: [
+        {
+          speaker: "tim",
+          text: "Dude he's literally two steps down the block just talk to him",
+          voice: "jim",
 
+        },
+      ],
+      choices: [
+        { label: "Do you know anything more on John", next: "john_gf_fight" },
+        { label: "I'm getting tired of the disrespect Tim.", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "I'll come back later", next: "good_end" },
+      ]
+    },
     john_gf_fight: {
       segments: [
         {
           speaker: "tim",
-          text: "Nothing much to note but He and his girlfriend were screaming at each other the day. She stormed out with a suitcase. "
+          text: "Nothing much to note but He and his girlfriend were screaming at each other the day.",
+          voice: "john_01",
+
         },
         {
           speaker: "tim",
-          text: "If money went missing, I'd check her before checking me. But what do I know?"
-        }
+          text: "If money went missing, I'd check her before checking me. But what do I know?",
+          voice: "john_02",
+        },
       ],
-      set: { cluesAdd: ["tim_heard_argument"] },
+      set: {
+        cluesAdd: ["clue_tim_heard_argument", "clue_john_argument"],
+      },
       choices: [
         { label: "What exactly did you hear?", next: "argument_detail" },
-        { label: "Back to the thefts.", next: "baseline" },
-        { label: "You didn't think to tell me this ealirer?", next: "tim_bait_round1" }
+        { label: "You didn't think to tell me this earlier?", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } },
+        { label: "I'll come back later", next: "good_end" },
       ]
     },
     jane_info: {
       segments: [
         {
           speaker: "tim",
-          text: "Jane is John's girlfriend, I think they've been living together for about four years"
+          text: "Jane is John's girlfriend, I think they've been living together for about four years",
+          voice: "jane"
         },
       ],
       choices: [
         { label: "What exactly did you hear?", next: "argument_detail" },
-        { label: "Back to the thefts.", next: "baseline" }
+        { label: "I'll come back later", next: "good_end" },
       ]
     },
 
@@ -88,12 +150,12 @@ const timDialogue = {
       segments: [
         {
           speaker: "tim",
-          text: "Something about bills or whatever I didn't listen in for very long"
+          text: "Something about bills or whatever I didn't listen in for very long",
+          voice: "argument_details"
         }
       ],
       choices: [
-        { label: "Did you see anyone near John's place that day?", next: "tim_saw_anyone" },
-        { label: "Return to your morning route.", next: "jogging_start" }
+        { label: "That's all I needed", next: "good_end" },
       ]
     },
 
@@ -103,13 +165,17 @@ const timDialogue = {
       segments: [
         {
           speaker: "tim",
-          text: "I didn't see anything, now can you go already."
-        }
+          text: "I didn't see anything, now can you go already.",
+          voice: "jogging_ask_01"
+        },
       ],
+      set: {
+        cluesAdd: ["clue_tim_saw_nothing_running"],
+      },
       choices: [
-        { label: "Your route passes Sam's walkway, right? Could you have seen Jim's wallet before Sam did?", next: "jogging_route_detail" },
-        { label: "Could you have seen Jim's wallet before Sam did?", next: "maybe_saw_wallet" },
-        { label: "Bait resp", next: "tim_bait_round1" }
+        { label: "Your route passes Sam's walkway, right? Could you have seen Jim's wallet before Sam did?", next: "maybe_saw_wallet" },
+        { label: "Do you know anything about the robberies themselves", next: "robbery_detials" },
+        { label: "Yeah that's all I needed", next: "good_end" },
       ]
     },
 
@@ -120,84 +186,90 @@ const timDialogue = {
       segments: [
         {
           speaker: "tim",
-          text: "Didn't see a thing. Maybe if you did a lap around the block you'd spot something yourself."
-          //speaker: "tim",
-          // text: "Go on, run little doggy."
+          text: "Didn't see a thing. Maybe if you did a lap around the block you'd spot something yourself.",
+          voice: "jogging_ask_02",
+        },
+        {
+          speaker: "tim",
+          text: "Go on, run little doggy.",
+          voice: "jogging_ask_03",
         }
       ],
-      set: { cluesAdd: ["tim_alibi"] },
       choices: [
         { label: "What can you tell me about John", next: "John" },
         { label: "What can you tell me about Jim", next: "Jim" },
-        { label: "Any details on the robberies?", next: "" },
-        { label: "bait resp", next: "tim_bait_round1" }
+        { label: "Any details on the robberies?", next: "robbery_detials" },
+        { label: "I'm getting tired of the disrespect Tim", next: "__PROVOKE__", requires: { notFlags: ["tim_shutdown"] } }
       ]
     },
 
-
-
-
-    tim_bait_round1: {
+    tim_provoke_warn1: {
       segments: [
         {
           speaker: "tim",
-          text: "Careful, Detective. If you're trying to provoke me, it's working."
+          text: "Careful, Detective. If you're trying to provoke me, it's working.",
+          voice: "bait_01"
         }
       ],
       choices: [
-        { label: "Just answer the question.", next: "tim_bait_round2" },
-        { label: "What are you hiding, Tim?", next: "tim_nuke", onSelect: (s) => { s.flags.pissedOffTim = true; } }
+        { label: "[Continue]", next: "__PROVOKE_RETURN__" }
       ]
     },
 
-
-    tim_bait_round2: {
+    tim_provoke_warn2: {
       segments: [
         {
           speaker: "tim",
-          text: "You're pushing it. I don't tolerate disrespect—not from neighbors, and definitely not from cops."
+          text: "You're pushing it. I don't tolerate disrespect, not from neighbors, and definitely not from cops.",
+          voice: "bait_02"
         }
       ],
       choices: [
-        { label: "Sorry. Let's restart.", next: "tim_reset" },
-        { label: "You look guilty as hell.", next: "tim_nuke", onSelect: (s) => { s.flags.pissedOffTim = true; } }
+        { label: "[Continue]", next: "__PROVOKE_RETURN__" }
       ]
     },
 
-
-    tim_reset: {
+    tim_provoke_done: {
       segments: [
         {
           speaker: "tim",
-          text: "Hmph. Fine. One more chance. Don't waste it."
+          text: "We're done. Get off my porch.",
+          voice: "bad_end"
         }
+      ],
+      set: { flagsAdd: ["tim_shutdown"] },
+      choices: [
+        { label: "[End conversation]", next: "end" }
+      ]
+    },
+
+    shutdown: {
+      segments: [
+        { speaker: "tim", text: "I told you we're done. Move." }
       ],
       choices: [
-        { label: "Back to the thefts.", next: "baseline" },
-        { label: "Let's continue your route.", next: "jogging_start" }
+        { label: "[Leave]", next: "end" }
       ]
     },
 
 
-    tim_nuke: {
+    good_end: {
       segments: [
         {
           speaker: "tim",
-          text: "We're done. Get off my porch."
+          text: "If we're finished, close the gate on your way out.",
+          voice: "end"
         }
       ],
-      end: true,
-      onEnter: (s) => { s.flags.timHardShutdown = true; },
-      choices: []
+      end: {
+        segments: [
+        ],
+        end: true,
+        choices: []
+      }
     },
-
-
     end: {
       segments: [
-        {
-          speaker: "tim",
-          text: "If we're finished, close the gate on your way out."
-        }
       ],
       end: true,
       choices: []
@@ -207,6 +279,3 @@ const timDialogue = {
 
 
 export default timDialogue;
-
-
-

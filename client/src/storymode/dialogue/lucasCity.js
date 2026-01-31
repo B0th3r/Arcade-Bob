@@ -23,7 +23,7 @@ const lucasDialogue = {
             segments: [
                 {
                     speaker: "lucas",
-                    text: "Oh... just the person I wanted to see.",
+                    text: "Oh {{playerName}} just the person I wanted to see.",
                     voice: "intro_city_01",
                 },
                 {
@@ -52,7 +52,7 @@ const lucasDialogue = {
             segments: [
                 {
                     speaker: "lucas",
-                    text: "Thank you, detective! I will pay you back, I swear.",
+                    text: "Thank you, detective! I'll pay you back, I swear.",
                     voice: "fetch_flower",
                 },
             ],
@@ -80,7 +80,7 @@ const lucasDialogue = {
 
         return_visit: {
             gate: {
-                notFlags: ["bought_flowers_for_lucas"]
+                notFlags: ["flower_purchased"]
             },
             nextFail: "return_with_flowers",
             segments: [
@@ -90,18 +90,33 @@ const lucasDialogue = {
                     voice: "greet",
                 },
             ],
-            choices: [{ label: "[End conversation]", next: "end" },]
+            choices: [{ label: "Fine.", next: "accept" }, { label: "[End conversation]", next: "end" },]
         },
         return_with_flowers: {
+            onEnter: (state) => {
+                state.flags.add("cutscene_lucas_goes_to_maya");
+            },
+            set: {
+                flagsAdd: ["flower_delivered_lucas"]
+            },
             segments: [
                 {
                     speaker: "lucas",
                     text: "Perfect! Alright, I'm going to go. You come with me. I saw her enter the bar a minute ago.",
                     voice: "flower_delivered",
                 },
+            ],
+            choices: [
+                { label: "Let's go", next: "" },]
+        },
+        flowers_to_maya_01: {
+            onEnter: (state) => {
+                state.flags.add("cutscene_maya_leaves");
+            },
+            segments: [
                 {
                     speaker: "maya",
-                    text: "Hey detective",
+                    text: "Hey, detective",
                     voice: "maya_bar_01",
                 },
                 {
@@ -111,7 +126,7 @@ const lucasDialogue = {
                 },
                 {
                     speaker: "maya",
-                    text: "Hey detective",
+                    text: "Oh- um- there nice but I actually like girls.",
                     voice: "maya_bar_02",
                 },
                 {
@@ -126,30 +141,35 @@ const lucasDialogue = {
                 },
                 {
                     speaker: "maya",
-                    text: "Hey detective",
+                    text: "It was mid at best",
                     voice: "maya_bar_03",
                 },
                 {
                     speaker: "maya",
-                    text: "Cya.",
-                    voice: "",
+                    text: "See you later.",
+                    voice: "bye",
                 },
-                 {
+            ],
+            choices: [{ label: "[CONTINUE]", next: "flowers_to_maya_02" },]
+        },
+        flowers_to_maya_02: {
+            segments: [
+                {
                     speaker: "lucas",
                     text: "...",
                 },
                 {
                     speaker: "lucas",
-                    text: "You know what detective this is all your fault maybe if you would have picked better flowers this wouldn't have happened!",
+                    text: "You know what, detective? This is all your fault. Maybe if you had picked better flowers, this wouldn't have happened!",
                     voice: "reject_ending_01",
                 },
                 {
                     speaker: "lucas",
-                    text: "damn it. all of this for nothing.",
+                    text: "Damn it. all of this for nothing.",
                     voice: "reject_ending_02",
                 },
             ],
-           choices: [{ label: "[End conversation]", next: "end" },]
+            choices: [{ label: "[End conversation]", next: "end" },]
         },
 
         end: {

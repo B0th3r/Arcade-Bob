@@ -1,5 +1,5 @@
 const hayesDialogue = {
-  start: "intro",
+  start: "return_visit",
 
   nodes: {
     intro: {
@@ -141,7 +141,7 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "From what I gathered Jim seems pretty scatterbrained. Donna on the other hand seems sharp.",
-          voice: "JimandDonna"
+          voice: "jimanddonna"
         },
       ],
       choices: [
@@ -157,7 +157,7 @@ const hayesDialogue = {
       segments: [
         {
           speaker: "hayes",
-          text: "Sam's been nothing but cooperative. she seems to keep to herself mostly.",
+          text: "Sam's been nothing but cooperative. seems to keep to herself mostly.",
           voice: "Sam",
         }
       ],
@@ -175,11 +175,12 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "I heard from Donna that John was also robbed but I haven't spoken with him yet.",
-          voice: "John"
+          voice: "john"
         },
         {
           speaker: "hayes",
-          text: "It also seems he has a person named Jane living wtih him"
+          text: "It also seems he has a person named Jane living with him",
+          voice: "john_02"
         },
       ],
       choices: [
@@ -196,7 +197,7 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "Yes, I bumped Tim earlier he's loud and arrogant. Matter of fact you should just avoid him outright.",
-          voice: "Tim"
+          voice: "tim"
         },
       ],
       choices: [
@@ -234,7 +235,7 @@ const hayesDialogue = {
         {
           label: "It was Tim.",
           next: "confirm_accusation",
-          set: { flagsAdd: ["accused_tim", "you_screwed_lucas"] }
+          set: { flagsAdd: ["accused_tim"] }
         },
         {
           label: "It was Donna she's been stealing behind Jim's back",
@@ -242,7 +243,7 @@ const hayesDialogue = {
           set: { flagsAdd: ["accused_donna"] }
         },
         {
-          label: "It was the Flowerboy",
+          label: "It was the Flower boy",
           next: "confirm_accusation",
           requires: { flagsAll: ["Met_florist"] },
           set: { flagsAdd: ["accused_florist"] }
@@ -300,42 +301,42 @@ const hayesDialogue = {
       segments: [],
       choices: [
         {
-          label: "",
+          label: "[Continue]",
           next: "lucas_interruption",
-          requires: { flagsAny: ["you_screwed_lucas", "hayes_screwed_lucas"] }
+          requires: { flagsAny: ["you_screwed_lucas", "hayes_screwed_lucas"], FlagsAll: ["lucas_needs_flowers", "talkedToLucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_sam",
           requires: { flagsAll: ["accused_sam"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_tim",
           requires: { flagsAll: ["accused_tim"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_john",
           requires: { flagsAll: ["accused_john"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_jane",
           requires: { flagsAll: ["accused_jane"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_donna",
           requires: { flagsAll: ["accused_donna"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_florist",
           requires: { flagsAll: ["accused_florist"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         },
         {
-          label: "",
+          label: "[Continue]",
           next: "accuse_jim",
           requires: { flagsAll: ["accused_jim"], notFlags: ["you_screwed_lucas", "hayes_screwed_lucas"] }
         }
@@ -355,7 +356,7 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "Lucas? What are you doing here?",
-          voice: "hayes_confused",
+          voice: "lucas_01",
           requires: { flagsAll: ["hayes_screwed_lucas"] }
         },
         {
@@ -371,7 +372,7 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "I don't know what your talking about.",
-          voice: "lucas_accuse_01",
+          voice: "lucas_02",
           requires: { flagsAll: ["hayes_screwed_lucas"] }
         },
         {
@@ -383,7 +384,7 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "We don't have time for this.",
-          voice: "hayes_security"
+          voice: "lucas_04"
         },
         {
           speaker: "lucas",
@@ -400,7 +401,7 @@ const hayesDialogue = {
       segments: [{
         speaker: "hayes",
         text: "*sigh* Sorry about that. Where were we?",
-        voice: "hayes_resume"
+        voice: "lucas_03"
       },],
       choices: [
         {
@@ -473,24 +474,24 @@ const hayesDialogue = {
     tim_arrives: {
       segments: [
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Here they are",
           voice: "suspect_arrived",
         },
         {
-          speaker: "Tim",
+          speaker: "tim",
           text: "Uncuff me. Now.",
-          voice: "Tim_ending_intro",
+          voice: "tim_ending_intro",
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Stop moving. Your only making this worse",
           voice: "moving_suspect",
         }
       ],
       choices: [
         {
-          label: "You stole it during John and Janes agurment",
+          label: "You stole it during John and Janes argument",
           next: "tim_accusation",
           requires: { cluesAll: ["clue_tim_heard_argument"] }
         },
@@ -529,7 +530,7 @@ const hayesDialogue = {
           voice: "false_evidence",
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Yes it does Tim, trust me we heard about all of your misdoings around the neighborhood",
           voice: "tim_arrest_01",
         },
@@ -552,7 +553,7 @@ const hayesDialogue = {
           requires: { cluesAll: ["clue_tim_and_john_argument"] }
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "I'm a detective, what did you expect? I was investigating.",
           voice: "tim_arrest_02",
           requires: { cluesAll: ["clue_tim_and_john_argument"] }
@@ -570,7 +571,7 @@ const hayesDialogue = {
           requires: { cluesAll: ["clue_tim_and_john_argument"] }
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "I had enough of this, we're bringing him in",
           voice: "tim_arrest_03",
         },
@@ -586,7 +587,7 @@ const hayesDialogue = {
           }
         },
         {
-          label: "You stole it during John and Janes agurment",
+          label: "You stole it during John and Janes argument",
           next: "tim_accusation",
           requires: { cluesAll: ["clue_tim_heard_argument"], notFlags: ["tim_accusation"] }
         },
@@ -625,7 +626,7 @@ const hayesDialogue = {
           voice: "pressed_01",
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Answer the question!",
           voice: "pressing_suspect",
         },
@@ -642,7 +643,7 @@ const hayesDialogue = {
           requires: { flagsAll: ["tim_accusation"] }
         },
         {
-          label: "You stole it during John and Janes agurment",
+          label: "You stole it during John and Janes argument",
           next: "tim_accusation",
           requires: { cluesAll: ["clue_tim_heard_argument"], notFlags: ["tim_accusation"] }
         },
@@ -676,7 +677,7 @@ const hayesDialogue = {
       set: { flagsAdd: ["taunted"] },
       segments: [
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Ha! great one detective",
           voice: "taunted_suspect",
         },
@@ -694,7 +695,7 @@ const hayesDialogue = {
           set: { flagsAdd: ["tim_aligned"] }
         },
         {
-          label: "You stole it during John and Janes agurment",
+          label: "You stole it during John and Janes argument",
           next: "tim_accusation",
           requires: { cluesAll: ["clue_tim_heard_argument"] }
         },
@@ -760,7 +761,7 @@ const hayesDialogue = {
     sam_arrives: {
       segments: [
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Here they are",
           voice: "suspect_arrived",
         },
@@ -770,7 +771,7 @@ const hayesDialogue = {
           voice: "arrested",
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "It's okay just tell us what we need to know",
           voice: "calming_suspect",
         }
@@ -801,17 +802,17 @@ const hayesDialogue = {
       set: { flagsAdd: ["sam_accusation_good"] },
       segments: [
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "timeline matches up, it only could have been you Sam",
           voice: "sam_arrest_01",
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Your the only one who had contact with the wallet before it reached back to Jim.",
           voice: "sam_arrest_02",
         },
         {
-          speaker: "Hayes",
+          speaker: "hayes",
           text: "Now just make this easier and admit it.",
           voice: "sam_arrest_03",
         },
@@ -1204,7 +1205,7 @@ const hayesDialogue = {
           next: "john_apply_evidence",
           requires: {
             notFlags: ["used_jane"],
-            cluesAll: ["clue_jane_location_city"]
+            flagsAll: ["janes_location_city"]
           },
           set: {
             flagsAdd: ["used_jane"],
@@ -1296,7 +1297,7 @@ const hayesDialogue = {
         {
           speaker: "john",
           text: "Wait really?",
-          voice: "john_react_shutdown",
+          voice: "shut_down",
           requires: { flagsAll: ["used_shutdown"] }
         },
         {
@@ -1349,7 +1350,7 @@ const hayesDialogue = {
 
     john_lawyer_up: {
       segments: [
-        { speaker: "john", text: "We're done here. Get me my lawyer.", voice: "john_fail_01" },
+        { speaker: "john", text: "Thats enough for me detective this interview is over", voice: "invest_end" },
       ],
       set: {
         flagsAdd: ["john_lawyered_up", "interrogation_failed"]
@@ -1407,35 +1408,41 @@ const hayesDialogue = {
         {
           speaker: "hayes",
           text: "Uh- actually detective.",
-          voice: "",
-          requires: { flagsAll: ["marcus_caught"]},
+          voice: "arrested_you_01",
+          requires: { flagsAll: ["marcus_caught"] },
         },
         {
           speaker: "hayes",
           text: "I can't go in.",
-          voice: "",
-          requires: { flagsAll: ["marcus_caught","tim_aligned"] },
+          voice: "arrested_you_02",
+          requires: { flagsAll: ["marcus_caught", "tim_aligned"] },
         },
         {
           speaker: "hayes",
           text: "Marcus has ordered me to arrest you too",
-          voice: "",
-          requires: { flagsAll: ["marcus_caught"]},
+          voice: "arrested_you_03",
+          requires: { flagsAll: ["marcus_caught"] },
         },
 
         {
           speaker: "hayes",
           text: "So come on, I'm taking you in.",
-          voice: "",
-         requires: { flagsAll: ["marcus_caught"]},
+          voice: "arrested_you_04",
+          requires: { flagsAll: ["marcus_caught"] },
         },
-          {
+        {
+          speaker: "hayes",
+          text: "come on, I'm taking you in.",
+          voice: "arrested_suspect_end",
+          requires: { notFlags: ["marcus_caught", "tim_aligned"] },
+        },
+        {
           speaker: "hayes",
           text: "So come on, I'm taking you in. Along with tim",
-          voice: "",
-         requires: { flagsAll: ["marcus_caught","tim_aligned"] },
+          voice: "arrested_you_05",
+          requires: { flagsAll: ["marcus_caught", "tim_aligned"] },
         },
-        
+
       ],
       choices: [
         { label: "[End conversation]", next: "end" },

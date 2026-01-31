@@ -8,8 +8,8 @@ const johnTimDialogue = {
             },
             segments: [
                 { speaker: "john", text: "Will you just leave me alone already?", voice: "tim_agure_01" },
-                { speaker: "tim", text: "Come on just tell me what happened man.", voice: "john_agure_01" },
-                { speaker: "tim", text: "Did she leave you because your broke", voice: "john_agure_02" },
+                { speaker: "tim", text: "Come on, just tell me what happened man.", voice: "john_agure_01" },
+                { speaker: "tim", text: "Did she leave you because your broke.", voice: "john_agure_02" },
                 { speaker: "john", text: "For the last time, Tim back off!", voice: "tim_agure_02" },
                 { speaker: "tim", text: "I'm not leaving until I get some answers!", voice: "john_agure_03" },
                 {
@@ -77,7 +77,7 @@ const johnTimDialogue = {
             segments: [
                 {
                     speaker: "tim",
-                    text: "since you've been taking so long with your investigation I decided to do it for you",
+                    text: "Since you've been taking so long with your investigation I decided to do it for you.",
                     voice: "investigation_01"
                 },
                 { speaker: "tim", text: "Would you like to see my findings", voice: "investigation_02" },
@@ -176,7 +176,7 @@ const johnTimDialogue = {
                     next: "john_invest_01",
                 },
                 {
-                    label: "Nevermind",
+                    label: "Never mind",
                     next: "end",
                 },
             ],

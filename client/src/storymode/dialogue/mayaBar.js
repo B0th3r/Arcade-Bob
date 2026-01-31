@@ -27,7 +27,7 @@ const mayaDialogue = {
         flagsAdd: ["hayes_screwed_lucas"]
       },
       segments: [
-        { speaker: "maya", text: "Haye's? Huh", voice: "hayes" },
+        { speaker: "maya", text: "Hayes?", voice: "hayes" },
         { speaker: "maya", text: "Well, thank you for giving them to me", voice: "thanks" },
       ],
       choices: [

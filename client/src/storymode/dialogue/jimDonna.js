@@ -39,19 +39,8 @@ const jimDonnaDialogue = {
         { label: "Let's talk about the missing money.", next: "money_missing", requires: { notFlags: ["asked_money_missing"] } },
 
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
-        { label: "[Leave]", next: "end_02" },
-      ],
-    },
 
-    suspects_menu_silent: {
-      segments: [],
-      choices: [
-        { label: "Sam", next: "sam_info" },
-        { label: "John", next: "john_info" },
-        { label: "Tim", next: "tim_info" },
-        { label: "Back to the timeline.", next: "timeline_menu" },
-        { label: "[Leave]", next: "end_01" },
+        { label: "[Leave]", next: "end_02" },
       ],
     },
 
@@ -86,7 +75,7 @@ const jimDonnaDialogue = {
         { label: "Let's talk about the missing money.", next: "money_missing", requires: { notFlags: ["asked_money_missing"] } },
 
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "[Leave]", next: "end_01" },
       ],
     },
@@ -105,7 +94,7 @@ const jimDonnaDialogue = {
         { label: "Who found it?", next: "sam_intro" },
         { label: "Okay. Keep going.", next: "timeline_menu" },
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "[Leave]", next: "end_01" },
       ],
     },
@@ -123,7 +112,7 @@ const jimDonnaDialogue = {
         { label: "So Sam returned it the next morning?", next: "sam_intro" },
         { label: "Jim— do you remember the return?", next: "jim_memory" },
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "[Leave]", next: "end_01" },
       ],
     },
@@ -142,7 +131,7 @@ const jimDonnaDialogue = {
         { label: "Let's talk about the money that went missing.", next: "money_missing" },
         { label: "Back up— how did you get it back?", next: "sam_intro" },
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "[Leave]", next: "end_01" },
       ],
     },
@@ -161,7 +150,7 @@ const jimDonnaDialogue = {
         { label: "Did either of you check the money then?", next: "checked_when" },
         { label: "Alright. Let's move on.", next: "timeline_menu" },
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "[Leave]", next: "end_01" },
       ],
     },
@@ -179,7 +168,7 @@ const jimDonnaDialogue = {
         { label: "Okay. When did you notice the missing $20?", next: "checked_when" },
         { label: "Let's move to the missing twenty.", next: "money_missing" },
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "[Leave]", next: "end_01" },
       ],
     },
@@ -208,7 +197,7 @@ const jimDonnaDialogue = {
         { label: "Why did you check the money later?", next: "why_check", requires: { notFlags: ["asked_why_check"] } },
         { label: "How much was missing, and how much was left?", next: "money_missing" },
         { label: "What a joke. Have you checked between the couch cushions?", next: "poke_02" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "Ask about John's robbery.", next: "john" },
         { label: "[Leave]", next: "end_01" },
       ],
@@ -225,7 +214,7 @@ const jimDonnaDialogue = {
       set: { flagsAdd: ["asked_why_check"] },
       choices: [
         { label: "How much money was missing?", next: "money_missing" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "Let's talk about John's robbery.", next: "john" },
         { label: "Back.", next: "timeline_menu" },
         { label: "[Leave]", next: "end_01" },
@@ -249,7 +238,7 @@ const jimDonnaDialogue = {
       choices: [
         { label: "They only took one $20 bill?", next: "comment_on_odd", requires: { notFlags: ["asked_comment_on_odd"] } },
         { label: "Let's talk about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "Back.", next: "timeline_menu" },
         { label: "[Leave]", next: "end_01" },
       ],
@@ -406,7 +395,7 @@ const jimDonnaDialogue = {
       ],
       choices: [
         { label: "Go on.", next: "tim_followup" },
-        { label: "Would he take $20?", next: "tim_motive"},
+        { label: "Would he take $20?", next: "tim_motive" },
         { label: "Back.", next: "suspects_menu_silent" },
         { label: "Back to the timeline.", next: "timeline_menu" },
       ],
@@ -441,7 +430,7 @@ const jimDonnaDialogue = {
         { label: "Fine. Continue.", next: "timeline_menu" },
         { label: "Let's talk about the money.", next: "money_missing" },
         { label: "Ask about John's robbery.", next: "john" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
       ],
     },
 
@@ -455,7 +444,7 @@ const jimDonnaDialogue = {
       ],
       choices: [
         { label: "Alright. Back to business.", next: "timeline_menu" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
+
         { label: "Ask about John's robbery.", next: "john" },
       ],
     },
@@ -472,15 +461,11 @@ const jimDonnaDialogue = {
     end_01: {
       segments: [
         {
-          speaker: "jim", text: "Bye.",
-          voice: ""
+          speaker: "jim", text: "Well, bye then.",
+          voice: "bye"
         },
       ],
-      choices: [
-        { label: "Alright. Back to business.", next: "timeline_menu" },
-        { label: "Let's talk about your neighbors.", next: "suspects_menu_silent" },
-        { label: "Ask about John's robbery.", next: "john" },
-      ],
+      choices: [{ label: "[Leave]", next: "end_02" }],
     },
 
     end_02: {

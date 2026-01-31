@@ -6,7 +6,7 @@ const janeDialogue = {
       nextFail: "intro_pass",
       segments: [{ speaker: "jane", text: "Huh? who are you?", voice: "rare_intro" }],
       choices: [
-        { label: "I'm a detecive", next: "intro_detective" },
+        { label: "I'm a detective", next: "intro_detective" },
         { label: "Who are you?", next: "intro_polite_leave" },
         { label: "[Leave]", next: "end" },
       ],
@@ -85,7 +85,7 @@ const janeDialogue = {
           next: "where_is_gambling_buddy",
           requires: { cluesAll: ["clue_jane_talked_to_gambler"] },
         },
-        { label: "You want revenge? Tell me somthing that'll bring him down.", next: "evil_pushback" },
+        { label: "You want revenge? Tell me something that'll bring him down.", next: "evil_pushback" },
 
         { label: "[Leave]", next: "end_goodbye" },
       ],
@@ -126,7 +126,7 @@ const janeDialogue = {
         },
         {
           speaker: "jane",
-          text: "But it keep thawing it me, so I went the supposive  bar John got robbed at.",
+          text: "But it keep thawing it me, so I went the suppositive bar John got robbed at.",
           voice: "bday_06",
         },
         {

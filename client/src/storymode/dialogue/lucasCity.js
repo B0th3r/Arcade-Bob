@@ -80,9 +80,9 @@ const lucasDialogue = {
 
         return_visit: {
             gate: {
-                notFlags: ["flower_purchased"]
+                notFlags: ["poem_failed"]
             },
-            nextFail: "return_with_flowers",
+            nextFail: "intro_locked",
             segments: [
                 {
                     speaker: "lucas",
@@ -90,7 +90,9 @@ const lucasDialogue = {
                     voice: "greet",
                 },
             ],
-            choices: [{ label: "Fine.", next: "accept" }, { label: "[End conversation]", next: "end" },]
+            choices: [{ label: "Fine. I'll do it", next: "accept", requires: { notFlags: ["lucas_needs_flowers"] }, },
+                { label: "I got the flowers", next: "return_with_flowers", requires: { flagsAll: ["flower_purchased"] },},
+                { label: "[End conversation]", next: "end" },]
         },
         return_with_flowers: {
             onEnter: (state) => {

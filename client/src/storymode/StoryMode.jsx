@@ -147,8 +147,8 @@ function MobileControls({ onPress, onRelease, show = true }) {
   );
 }
 
-function createNpc({ id, name, x, y, gid, dialogueId }) {
-  return { id, name, x, y, gid, dialogueId, cooldownMs: 400, };
+function createNpc({ id, name, x, y, gid, dialogueId, spriteId }) {
+  return { id, name, x, y, gid, dialogueId, spriteId, cooldownMs: 400, };
 }
 
 export default function App() {
@@ -670,7 +670,7 @@ export default function App() {
     setNpcs(
       def.npcs.map((n) =>
         createNpc({
-          id: n.id, name: n.name, x: n.x, y: n.y, gid: n.gid, dialogueId: n.dialogueId,
+          id: n.id, name: n.name, x: n.x, y: n.y, gid: n.gid, spriteId: n.spriteId, dialogueId: n.dialogueId,
         })
       )
     );
@@ -710,6 +710,7 @@ export default function App() {
       !GAME.flags.has("marcus_comforts_bobby_bar");
     const comfortScene = GAME.flags.has("marcus_comforts_bobby_bar");
     const mayaActive = GAME.flags.has("poem_passed") && !GAME.flags.has("maya_scene_complete");
+    
 
     if (name === "bar") {
       if (comfortScene) {
@@ -800,6 +801,7 @@ export default function App() {
         x: n.x,
         y: n.y,
         gid: n.gid,
+        spriteId: n.spriteId,
         dialogueId: n.dialogueId,
       })
     );

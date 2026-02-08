@@ -65,8 +65,8 @@ export const MAPS = {
     autoStartRequires: { flagsAny: ["poem_passed", "BobbyDirty", "BobbyGood"] },
     autoStartDialogue: true,
     npcs: [
-      { id: "lucas", x: 14, y: 5, gid: 106, dialogueId: "lucasCity", spriteId: "lucas" },
-      { id: "bobby", x: 3, y: 6, gid: 106, dialogueId: "bobby" },
+      { id: "lucasCity", x: 14, y: 5, gid: 106, dialogueId: "lucasCity", spriteId: "lucas" },
+      { id: "bobbyCity", x: 3, y: 6, gid: 106, dialogueId: "bobby", spriteId: "bobby"},
       { id: "delivery_girl", x: 4, y: 7, gid: 106, dialogueId: "bobby" },
       { id: "marcus", gid: 106, dialogueId: "marcus" },
       { id: "maya", gid: 106, dialogueId: "maya" },

@@ -113,7 +113,9 @@ export const CUTSCENES = {
   },
   bobby_leaves: {
     steps: [
-      { type: "despawnNPC", npcId: "bobby" },
+      { type: "text", content: "They both leave.", duration: 900 },
+      { type: "despawnNPC", npcId: "bobbyCity" },
+      { type: "despawnNPC", npcId: "delivery_girl" },
     ]
   },
   leave_pd: {

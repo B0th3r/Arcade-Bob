@@ -208,6 +208,9 @@ const bobbyDialogue = {
     },
 
     invest_end: {
+      onEnter: (state) => {
+        state.flags.add("cutscene_bobby_leaves");
+      },
       segments: [
         { speaker: "bobby", text: "Alright, you can go.", voice: "case_03" },
         {

@@ -374,6 +374,7 @@ export default function App() {
       { flag: "cutscene_marcus_leaves", cutsceneId: "marcus_leaves" },
       { flag: "cutscene_bobby_comes", cutsceneId: "bobby_comes" },
       { flag: "cutscene_bobby_moves_to_bartender", cutsceneId: "bobby_moves_to_bartender" },
+      { flag: "cutscene_bobby_leaves", cutsceneId: "bobby_leaves" },
       { flag: "cutscene_ending_master", cutsceneId: "ending_master" },
 
     ];
@@ -710,7 +711,7 @@ export default function App() {
       !GAME.flags.has("marcus_comforts_bobby_bar");
     const comfortScene = GAME.flags.has("marcus_comforts_bobby_bar");
     const mayaActive = GAME.flags.has("poem_passed") && !GAME.flags.has("maya_scene_complete");
-    
+
 
     if (name === "bar") {
       if (comfortScene) {
@@ -731,6 +732,9 @@ export default function App() {
             dialogueId: "marcusBar",
           }
         );
+      }
+      if (GAME.flags.has("lucas_maya_reject")) {
+        spawnList = spawnList.filter(npc => npc.id !== "maya");
       }
     }
 
@@ -755,6 +759,9 @@ export default function App() {
           dialogueId: "maya",
         });
       }
+      if (GAME.flags.has("flower_delivered_lucas")) {
+        spawnList = spawnList.filter(npc => npc.id !== "lucasCity");
+      }
     }
 
     if (johnTimActive && name == "neighborhood") {
@@ -766,7 +773,9 @@ export default function App() {
         { id: "tim", name: "Tim", x: 32, y: 19, gid: 451, dialogueId: "johnTim" }
       );
     }
-
+    if (johnTimActive && name == "johnsHouse") {
+      spawnList = spawnList.filter(npc => npc.id !== "john");
+    }
 
     if (movedToBar) {
       if (name === "bar") {
@@ -791,7 +800,7 @@ export default function App() {
         });
       }
       if (name === "city") {
-        spawnList = spawnList.filter(n => n.id !== "bobby" && n.id !== "delivery_girl");
+        spawnList = spawnList.filter(n => n.id !== "bobbyCity" && n.id !== "delivery_girl");
       }
     }
     const npcObjs = spawnList.map(n =>

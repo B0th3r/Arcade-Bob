@@ -1291,7 +1291,6 @@ const hayesDialogue = {
         {
           speaker: "john",
           text: "...",
-          voice: "john_react_good",
           requires: { flagsAny: ["used_alibi", "used_gambler", "used_robbery", "used_timeline"] }
         },
         {
@@ -1363,8 +1362,8 @@ const hayesDialogue = {
     john_press: {
       set: { flagsAdd: ["john_pressed"] },
       segments: [
-        { speaker: "hayes", text: "Answer the question, John!", voice: "pressing" },
-        { speaker: "john", text: "I'm not saying anything without understanding what you're accusing me of.", voice: "john_defensive" },
+        { speaker: "hayes", text: "Answer the question!", voice: "taunted_suspect" },
+        { speaker: "john", text: "..."},
       ],
       choices: [
         { label: "[Back]", next: "john_arrives" }
@@ -1382,7 +1381,7 @@ const hayesDialogue = {
       },
       segments: [
         { speaker: "hayes", text: "Ha! Good one detective", voice: "taunted_suspect" },
-        { speaker: "john", text: "Are you kidding me? What is this!", voice: "john_offended" },
+        { speaker: "john", text: "Are you kidding me? What is this!", voice: "taunted_02" },
       ],
       choices: [
         { label: "[Back]", next: "john_arrives" }

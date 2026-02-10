@@ -96,7 +96,7 @@ const lucasDialogue = {
                 {
                     speaker: "lucas",
                     text: "flowers? I suppose that could work",
-                    voice: "Flowers",
+                    voice: "flowers",
                 },
             ],
             choices: [

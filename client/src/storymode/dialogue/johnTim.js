@@ -203,7 +203,7 @@ const johnTimDialogue = {
         john_invest_02: {
             segments: [
                 { text: "(Tim leaves)" },
-                { speaker: "john", text: "So you talked to Jane huh.", voice: "talked_jane_04"  },
+                { speaker: "john", text: "So you talked to Jane huh.", voice: "talked_jane_05"  },
                 { speaker: "john", text: "Now why would you go on to do something like that. I don't like how you keep poking your noise into my business", voice: "talked_jane_01" },
                 { speaker: "john", text: "This clearly has nothing to do with your investigation I would even argue that this isn’t even legal.", voice: "talked_jane_02" },
                 { speaker: "john", text: "Will you at least tell me where she is", voice: "talked_jane_03" },

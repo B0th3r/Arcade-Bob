@@ -395,28 +395,10 @@ const jimDonnaDialogue = {
       ],
       choices: [
         { label: "Go on.", next: "tim_followup" },
-        { label: "Would he take $20?", next: "tim_motive" },
         { label: "Back.", next: "suspects_menu_silent" },
         { label: "Back to the timeline.", next: "timeline_menu" },
       ],
     },
-
-    tim_motive: {
-      segments: [
-        { speaker: "donna", text: "Would he take it? Hard to say. He's rude, not desperate." },
-        {
-          speaker: "jim", text: "But he'd pocket twenty bucks if he thought he deserved it more than us.",
-          voice: "tim_mot_02"
-        },
-      ],
-      set: { flagsAdd: ["asked_tim_motive"] },
-      choices: [
-        { label: "Back to your neighbors.", next: "suspects_menu_silent" },
-        { label: "Back to the timeline.", next: "timeline_menu" },
-        { label: "[Leave]", next: "end_01" },
-      ],
-    },
-
 
     poke_01: {
       segments: [

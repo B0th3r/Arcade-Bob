@@ -41,7 +41,7 @@ const johnDialogue = {
 
    jim_topic_menu_silent: {
     segments: [
-      { speaker: "john", text: "That missing $20 could be anywhere by now. It's more likely Jim misplaced it somewhere.", voice: "jim_robbery", requires: { notFlags: ["asked_Jim_robbery"] } }
+      { speaker: "john", text: "That missing $20 could be anywhere by now. It's more likely Jim misplaced it somewhere.", requires: { notFlags: ["asked_Jim_robbery"] } }
     ],
     choices: [
 
@@ -57,8 +57,8 @@ const johnDialogue = {
    },
 
    john_topic_menu_silent: {
-    segments: [{ speaker: "john", text: "One day before Jim lost his $20, I was robbed of $30 in the city.", voice: "john_robbery_01", requires: { notFlags: ["asked_John_robbery"] } },
-    { speaker: "john", text: "I was sitting at a bar, and I assume someone swiped my money without me noticing.", voice: "john_robbery_02", requires: { notFlags: ["asked_John_robbery"] } }
+    segments: [{ speaker: "john", text: "One day before Jim lost his $20, I was robbed of $30 in the city.", requires: { notFlags: ["asked_John_robbery"] } },
+    { speaker: "john", text: "I was sitting at a bar, and I assume someone swiped my money without me noticing.",  requires: { notFlags: ["asked_John_robbery"] } }
 
     ],
     choices: [
@@ -115,7 +115,7 @@ const johnDialogue = {
 
    Jim_robbery: {
     segments: [
-      { speaker: "john", text: "That missing $20 could be anywhere by now. It's more likely Jim misplaced it somewhere.", voice: "jim_robbery" }
+      { speaker: "john", text: "That missing $20 could be anywhere by now. It's more likely Jim misplaced it somewhere.", voice: "Jim_robbery" }
     ],
     set: { flagsAdd: ["asked_Jim_robbery"] },
     choices: [
@@ -178,7 +178,7 @@ const johnDialogue = {
 
    jane_push: {
     segments: [
-      { speaker: "john", text: "I already told you no, detective. Stop pushing me.", voice: "pressed_03" }
+      { speaker: "john", text: "I already told you no, detective. Stop pushing me.", voice: "pressed_04" }
     ],
     set: { flagsAdd: ["asked_jane_push"] },
     choices: [
@@ -213,8 +213,8 @@ const johnDialogue = {
 
    John_robbery: {
     segments: [
-      { speaker: "john", text: "One day before Jim lost his $20, I was robbed of $30 in the city.", voice: "john_robbery_01" },
-      { speaker: "john", text: "I was sitting at a bar, and I assume someone swiped my money without me noticing.", voice: "john_robbery_02" }
+      { speaker: "john", text: "One day before Jim lost his $20, I was robbed of $30 in the city.", voice: "John_robbery_01" },
+      { speaker: "john", text: "I was sitting at a bar, and I assume someone swiped my money without me noticing.", voice: "John_robbery_02" }
     ],
     set: { flagsAdd: ["asked_John_robbery"] },
     choices: [

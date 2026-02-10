@@ -50,7 +50,7 @@ const marcusDialogue = {
     bar_dirty_failed_02: {
       segments: [
         { speaker: "bobby", text: "What are you doing!", voice: "worse_end_01" },
-        { speaker: "marcus", text: "*Laugh* That's a perfect detective.", voice: "bar_dirty_failed_02" },
+        { speaker: "marcus", text: "*Laugh* That's a perfect detective.", voice: "sliped_up_02" },
 
       ],
       choices: [

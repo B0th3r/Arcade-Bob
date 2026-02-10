@@ -97,7 +97,7 @@ const floristDialogue = {
       ],
       choices: [
         { label: "what do you have in stock?", next: "browse", requires: { notFlags: ["flower_purchased"] }, },
-        { label: "Did he come in the night Jim lost money?", next: "timeline_check" }
+        { label: "I'll be leaving now", next: "end_soft" }
       ]
     },
     florist_cheapest_item: {
@@ -110,7 +110,7 @@ const floristDialogue = {
       ],
       choices: [
         { label: "(Purchase the Sunflowers)", next: "purchased" },
-        { label: "Did he come in the night Jim lost money?", next: "timeline_check" }
+        { label: "I'll be leaving now", next: "end_soft" }
       ]
     },
     florist_mother_item: {
@@ -123,7 +123,7 @@ const floristDialogue = {
       ],
       choices: [
         { label: "(Purchase the Tulips)", next: "purchased" },
-        { label: "Did he come in the night Jim lost money?", next: "timeline_check" }
+        { label: "I'll be leaving now", next: "end_soft" }
       ]
     },
     purchased: {

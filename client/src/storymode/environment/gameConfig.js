@@ -36,6 +36,7 @@ export const MAPS = {
     { id: "maya", x: 2, y: 4, gid: 1105, },
     { id: "ace", x: 10, y: 24, gid: 1105, dialogueId: "ace" }
     ],
+    bgm: "pd",
   },
   bar: {
     path: Bar_TMJ,
@@ -46,6 +47,7 @@ export const MAPS = {
     { id: "gambler", x: 15, y: 5, gid: 3586, dialogueId: "gambler" },
     { id: "maya", x: 15, y: 15, gid: 3586, dialogueId: "mayaBar" },
     ],
+    bgm: "bar",
     exits: [
       { x: 9, y: 21, to: "city", toStart: { x: 7, y: 6 } },
     ],
@@ -58,6 +60,7 @@ export const MAPS = {
     exits: [
       { x: 4, y: 9, to: "city", toStart: { x: 21, y: 6 } },
     ],
+    bgm: "shop",
   },
   city: {
     path: City_TMJ,
@@ -77,6 +80,7 @@ export const MAPS = {
       { x: 24, y: 6, to: "shop", toStart: { x: 4, y: 7 } },
       { x: 0, y: 7, to: "neighborhood", toStart: { x: 44, y: 20 } },
     ],
+    bgm: "city",
   },
   neighborhood: {
     path: Neighborhood_TMJ,
@@ -91,6 +95,7 @@ export const MAPS = {
       { x: 26, y: 20, to: "johnsHouse", toStart: { x: 2, y: 1 } },
       { x: 64, y: 20, to: "city", toStart: { x: 0, y: 7 } },
     ],
+    bgm: "neighborhood",
   },
   jimDonnasHouse: {
     path: JimDonnasHouse_TMJ,
@@ -101,6 +106,7 @@ export const MAPS = {
     exits: [
       { x: 13, y: 2, to: "neighborhood", toStart: { x: 53, y: 8 } },
     ],
+    bgm: "neighborhood",
   },
   johnsHouse: {
     path: JohnsHouse_TMJ,
@@ -109,6 +115,7 @@ export const MAPS = {
     exits: [
       { x: 0, y: 2, to: "neighborhood", toStart: { x: 24, y: 20 } },
     ],
+    bgm: "neighborhood",
   },
 };
 

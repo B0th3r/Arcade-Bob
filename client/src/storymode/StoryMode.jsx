@@ -4,7 +4,7 @@ import { DIALOGUE } from "./dialogue/index.js";
 import { GAME, MAPS, SPRITE } from "./environment/gameConfig.js";
 import { loadTMJ, loadImage, gidToDrawInfo, loadNpcImages } from "./environment/tmjLoader.js";
 import ObjectivesPanel from './objectives';
-import { playVoice, stopVoice, getVoiceDuration } from "./environment/audioManager.js";
+import { playVoice, stopVoice, getVoiceDuration, playBgm, duckBgm } from "./environment/audioManager.js";
 import { playCutscene } from './environment/cutsceneManager.js';
 
 const hasFlag = (f) => GAME.flags.has(f);
@@ -186,7 +186,7 @@ export default function App() {
   const [fadeOverlay, setFadeOverlay] = useState({ visible: false, color: "#000", duration: 0 });
   const [isAutoDialogue, setIsAutoDialogue] = useState(true);
   const [autoSpeed] = useState(1.0);
-
+  const autoGenRef = useRef(0);
   const autoTimerRef = useRef(null);
 
   const mapBufferRef = useRef(null);
@@ -614,10 +614,6 @@ export default function App() {
             {/* Next / Choices */}
             {hasSegments && !atLastSegment ? (
               <div className="flex justify-between items-center">
-                <div className="text-xs opacity-50">
-                  Click/Tap to advance
-                </div>
-
                 <button
                   className="px-4 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-sm"
                   onClick={(e) => {
@@ -627,6 +623,9 @@ export default function App() {
                 >
                   Next
                 </button>
+                <div className="text-xs opacity-50">
+                  Click/Tap to advance
+                </div>
               </div>
             ) : choices.length ? (
               <div className="grid gap-2">
@@ -667,7 +666,7 @@ export default function App() {
 
 
     setMap(loaded);
-
+    playBgm(def?.bgm ?? "default");
     setNpcs(
       def.npcs.map((n) =>
         createNpc({
@@ -1084,7 +1083,7 @@ export default function App() {
           stopVoice();
           return;
         }
-
+        duckBgm();
         playVoice(seg.speaker.toLowerCase(), seg.voice, { interrupt: true });
         played = true;
       }
@@ -1267,8 +1266,11 @@ export default function App() {
     if (!canAutoAdvance) {
       return;
     }
-
+    autoGenRef.current += 1;
+    const myGen = autoGenRef.current;
+    let cancelled = false;
     let currentSeg = null;
+
     if (visibleSegments.length > 0) {
       const idx = Math.min(segmentIndex, visibleSegments.length - 1);
       currentSeg = visibleSegments[idx];
@@ -1286,7 +1288,7 @@ export default function App() {
             currentSeg.speaker.toLowerCase(),
             currentSeg.voice
           );
-
+          if (cancelled || autoGenRef.current !== myGen) return;
           if (audioDuration && audioDuration > 0) {
             delay = Math.round((audioDuration + 300) / autoSpeed);
           } else {
@@ -1302,6 +1304,7 @@ export default function App() {
       }
 
       autoTimerRef.current = setTimeout(() => {
+        if (autoGenRef.current !== myGen) return;
         setSegmentIndex((i) => Math.min(i + 1, totalSegments - 1));
       }, delay);
     }

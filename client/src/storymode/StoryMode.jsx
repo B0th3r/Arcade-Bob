@@ -147,10 +147,26 @@ function MobileControls({ onPress, onRelease, show = true }) {
   );
 }
 
-function createNpc({ id, name, x, y, gid, dialogueId, spriteId }) {
-  return { id, name, x, y, gid, dialogueId, spriteId, cooldownMs: 400, };
+function createNpc({id, name, x, y, gid, dialogueId, spriteId, direction = "down",}) {
+  return {id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, cooldownMs: 400, _lastTalkAt: 0, };
+}
+function getFacingToward(fromX, fromY, toX, toY) {
+  const dx = toX - fromX;
+  const dy = toY - fromY;
+
+  if (Math.abs(dx) > Math.abs(dy)) {
+    return dx > 0 ? "right" : "left";
+  }
+
+  return dy > 0 ? "down" : "up";
 }
 
+function facingToRender(direction) {
+  if (direction === "down") return { row: SPRITE.rows.down, flipX: false };
+  if (direction === "up") return { row: SPRITE.rows.up, flipX: false };
+  if (direction === "left") return { row: SPRITE.rows.side, flipX: true };
+  return { row: SPRITE.rows.side, flipX: false }; // right
+}
 export default function App() {
   const currentMapNameRef = useRef("neighborhood");
   const [transitionMessage, setTransitionMessage] = useState(null);
@@ -177,6 +193,7 @@ export default function App() {
   const [segmentIndex, setSegmentIndex] = useState(0);
   const keysRef = useKeyboard();
   const isTouch = useIsTouch();
+  const dialogueOpenedAtRef = useRef(0);
 
   const viewportRef = useRef(null);
   const [viewportPx, setViewportPx] = useState({ w: 0, h: 0 });
@@ -191,6 +208,20 @@ export default function App() {
 
   const mapBufferRef = useRef(null);
   const mapBufferInfoRef = useRef({ name: null, w: 0, h: 0 });
+
+  function drawTileWithFlips(ctx, info, dx, dy, dw, dh) {
+    ctx.save();
+    ctx.translate(dx + dw / 2, dy + dh / 2);
+
+    if (info.flipD) ctx.rotate(Math.PI / 2);
+
+    ctx.scale(info.flipH ? -1 : 1, info.flipV ? -1 : 1);
+
+    ctx.drawImage(info.img, info.sx, info.sy, info.sw, info.sh, -dw / 2, -dh / 2, dw, dh);
+    ctx.restore();
+  }
+
+
   function buildWorldBuffer({ map, mapName }) {
     if (!map) return;
 
@@ -222,17 +253,8 @@ export default function App() {
           const info = gidToDrawInfo(rawGid, map.tilesets);
           if (!info) continue;
 
-          bctx.drawImage(
-            info.img,
-            info.sx,
-            info.sy,
-            info.sw,
-            info.sh,
-            mx * tw,
-            my * th,
-            tw,
-            th
-          );
+          drawTileWithFlips(bctx, info, mx * tw, my * th, tw, th);
+
         }
       }
     }
@@ -305,8 +327,9 @@ export default function App() {
   }
 
   function drawWaypointMarker(ctx, px, py, tileSize, isOptional) {
+    const spriteTopY = py - tileSize;
     const cx = px + tileSize / 2;
-    const cy = py - tileSize * 0.35;
+    const cy = spriteTopY - tileSize * 0.2;
 
     ctx.save();
     ctx.font = `${Math.floor(tileSize * 0.9)}px sans-serif`;
@@ -322,7 +345,6 @@ export default function App() {
 
     ctx.restore();
   }
-
   // Sprite images and animation state
   const spriteRef = useRef({ sheet: null });
 
@@ -340,7 +362,7 @@ export default function App() {
     navigate("/");
   }
   useEffect(() => {
-    loadNamedMap("office").catch(console.error);
+    loadNamedMap("pd").catch(console.error);
   }, []);
   useEffect(() => {
     let cancelled = false;
@@ -633,8 +655,9 @@ export default function App() {
                   <button
                     key={i}
                     className="text-left px-3 py-2 rounded-lg bg-slate-800/70 hover:bg-slate-700/70 ring-1 ring-white/10"
-                    onClick={(e) => {
+                    onPointerUp={(e) => {
                       e.stopPropagation();
+                      if (performance.now() - dialogueOpenedAtRef.current < 1500) return;
                       clearAutoTimer();
                       runChoice(c);
                     }}
@@ -669,9 +692,8 @@ export default function App() {
     playBgm(def?.bgm ?? "default");
     setNpcs(
       def.npcs.map((n) =>
-        createNpc({
-          id: n.id, name: n.name, x: n.x, y: n.y, gid: n.gid, spriteId: n.spriteId, dialogueId: n.dialogueId,
-        })
+        createNpc({id: n.id, name: n.name, x: n.x, y: n.y,
+          gid: n.gid, spriteId: n.spriteId, dialogueId: n.dialogueId, direction: n.direction ?? "down",})
       )
     );
 
@@ -743,7 +765,7 @@ export default function App() {
         spawnList.push({
           id: "marcus",
           name: "Marcus",
-          x: 12, y: 8,
+          x: 25, y: 20,
           gid: 106,
           dialogueId: "marcus",
         });
@@ -753,7 +775,7 @@ export default function App() {
         spawnList.push({
           id: "maya",
           name: "maya",
-          x: 2, y: 8,
+          x: 6, y: 26,
           gid: 106,
           dialogueId: "maya",
         });
@@ -768,8 +790,8 @@ export default function App() {
       spawnList = spawnList.filter(n => n.id !== "john" && n.id !== "tim");
 
       spawnList.push(
-        { id: "john", name: "John", x: 31, y: 19, gid: 451, dialogueId: "johnTim" },
-        { id: "tim", name: "Tim", x: 32, y: 19, gid: 451, dialogueId: "johnTim" }
+        { id: "john", name: "John", x: 32, y: 11, gid: 451, dialogueId: "johnTim" },
+        { id: "tim", name: "Tim", x: 33, y: 11, gid: 451, dialogueId: "johnTim" }
       );
     }
     if (johnTimActive && name == "johnsHouse") {
@@ -781,8 +803,8 @@ export default function App() {
         spawnList = spawnList.filter(n => n.id !== "bobby");
         spawnList.push({
           id: "bobby",
-          x: 4,
-          y: 14,
+          x: 8,
+          y: 9,
           gid: 3586,
           dialogueId: "bobbyBartender",
         });
@@ -792,8 +814,8 @@ export default function App() {
         spawnList = spawnList.filter(n => n.id !== "delivery_girl");
         spawnList.push({
           id: "delivery_girl",
-          x: 60,
-          y: 21,
+          x: 23,
+          y: 38,
           gid: 106,
           dialogueId: "delivery_girl",
         });
@@ -811,9 +833,9 @@ export default function App() {
         gid: n.gid,
         spriteId: n.spriteId,
         dialogueId: n.dialogueId,
+        direction: n.direction ?? "down",
       })
     );
-
     await loadNpcImages(npcObjs);
 
     setNpcs(npcObjs);
@@ -1092,6 +1114,7 @@ export default function App() {
     if (!played) stopVoice();
 
   }, [dialogue, segmentIndex]);
+  
   useEffect(() => {
     playCutscene("intro_boot", {
       loadNamedMap,
@@ -1158,6 +1181,15 @@ export default function App() {
           if (now - npc._lastTalkAt < npc.cooldownMs) return;
           npc._lastTalkAt = now;
 
+          const player = playerRef.current;
+          const facing = getFacingToward(npc.x, npc.y, player.x, player.y);
+
+          setNpcs(prev =>
+            prev.map(n =>
+              n.id === npc.id ? { ...n, direction: facing, _lastTalkAt: now } : n
+            )
+          );
+
           if (npc.dialogueId && DIALOGUE[npc.dialogueId]) {
             const dlg = DIALOGUE[npc.dialogueId];
 
@@ -1165,8 +1197,7 @@ export default function App() {
             const resumeNode = GAME.metadata.get(resumeFlag);
 
             if (resumeNode && dlg.nodes[resumeNode]) {
-              // Resume an ongoing conversation
-              GAME.metadata.delete(resumeFlag); // Clear resume point
+              GAME.metadata.delete(resumeFlag);
               setDialogue({
                 npcId: npc.id,
                 npcName: npc.name,
@@ -1243,13 +1274,17 @@ export default function App() {
     const dlg = DIALOGUE[dialogue.dlgId];
     const node = dlg?.nodes[dialogue.nodeId];
     const segments = node?.segments;
-    const choices = (node?.choices || []).filter(canShow);
+    const hasChoices = (node?.choices || []).filter(canShow).length > 0;
 
     const hasSegments = Array.isArray(segments) && segments.length > 0;
     const visibleSegments = hasSegments
       ? segments.filter(seg => !seg.requires || canShow({ requires: seg.requires }))
       : [];
-
+    if (hasChoices && !hasSegments) {
+      dialogueOpenedAtRef.current = performance.now();
+    } else {
+      dialogueOpenedAtRef.current = 0;
+    }
     const totalSegments = visibleSegments.length;
     const atLastSegment = totalSegments <= 0 || segmentIndex >= totalSegments - 1;
 
@@ -1474,17 +1509,20 @@ export default function App() {
           ctx.shadowColor = "rgba(255,255,255,0.35)";
           ctx.shadowBlur = 6;
         }
-
         if (npc._img) {
-          ctx.drawImage(npc._img, 0, 0, 16, 32, rx, ry, tw, th * 2);
-        }
-        else {
-          const info = gidToDrawInfo(npc.gid, map.tilesets);
-          if (info) {
-            ctx.drawImage(info.img, info.sx, info.sy, info.sw, info.sh, rx, ry, tw, th);
+          const { row, flipX } = facingToRender(npc.direction ?? "down");
+          const sx = 0; 
+          const sy = row * SPRITE.fh;
+
+          if (flipX) {
+            ctx.save();
+            ctx.scale(-1, 1);
+            ctx.drawImage(npc._img, sx, sy, SPRITE.fw, SPRITE.fh, -rx - tw, ry - th, tw, th * 2);
+            ctx.restore();
+          } else {
+            ctx.drawImage(npc._img, sx, sy, SPRITE.fw, SPRITE.fh, rx, ry - th, tw, th * 2);
           }
         }
-
         ctx.restore();
       }
       for (const obj of activeObjectives) {
@@ -1540,9 +1578,9 @@ export default function App() {
         ctx.save();
         if (anim.flipX) {
           ctx.scale(-1, 1);
-          ctx.drawImage(sheet, sx, sy, SPRITE.fw, SPRITE.fh, -px - tw, py, tw, th * 2);
+          ctx.drawImage(sheet, sx, sy, SPRITE.fw, SPRITE.fh, -px - tw, py - th, tw, th * 2);
         } else {
-          ctx.drawImage(sheet, sx, sy, SPRITE.fw, SPRITE.fh, px, py, tw, th * 2);
+          ctx.drawImage(sheet, sx, sy, SPRITE.fw, SPRITE.fh, px, py - th, tw, th * 2);
         }
         ctx.restore();
       }

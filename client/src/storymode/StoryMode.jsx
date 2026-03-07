@@ -375,7 +375,7 @@ export default function App() {
     navigate("/");
   }
   useEffect(() => {
-    loadNamedMap("pd").catch(console.error);
+    loadNamedMap("office").catch(console.error);
   }, []);
   useEffect(() => {
     let cancelled = false;
@@ -989,21 +989,24 @@ export default function App() {
     return named || null;
   }
 
-  function isBlocked(nx, ny) {
-    const layer = getCollisionLayer();
-    if (layer) {
-      if (ny < 0 || nx < 0 || ny >= layer.height || nx >= layer.width)
-        return true;
-      if (layer.grid[ny][nx] !== 0) return true;
-    }
+function isBlocked(nx, ny) {
+  if (!map) return true;
 
-    // NPCs blocks player
-    for (const npc of npcs) {
-      if (npc.x === nx && npc.y === ny) return true;
-    }
+  if (ny < 0 || nx < 0 || ny >= map.height || nx >= map.width) return true;
 
-    return false;
+  const collisionLayers =  map.layers.slice(1);
+
+  for (const layer of collisionLayers) {
+    if (layer.grid?.[ny]?.[nx] !== 0) return true;
   }
+
+  // NPCs block player
+  for (const npc of npcs) {
+    if (npc.x === nx && npc.y === ny) return true;
+  }
+
+  return false;
+}
 
   function tryStep(dx, dy) {
     if (!map) return;
@@ -1390,7 +1393,7 @@ export default function App() {
   function isAdjacentToPlayer(tx, ty) {
     const p = playerRef.current;
     if (currentMapNameRef.current === "shop") {
-      if (p.x === tx && Math.abs(p.y - ty) === 4) return true;
+      if (p.x === tx && Math.abs(p.y - ty) === 3) return true;
     }
     return Math.abs(p.x - tx) + Math.abs(p.y - ty) === 1;
   }

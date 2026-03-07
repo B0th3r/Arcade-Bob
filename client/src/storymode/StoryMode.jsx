@@ -4,7 +4,7 @@ import { DIALOGUE } from "./dialogue/index.js";
 import { GAME, MAPS, SPRITE } from "./environment/gameConfig.js";
 import { loadTMJ, loadImage, gidToDrawInfo, loadNpcImages } from "./environment/tmjLoader.js";
 import ObjectivesPanel from './objectives';
-import { playVoice, stopVoice, getVoiceDuration, playBgm, duckBgm } from "./environment/audioManager.js";
+import { playVoice, stopVoice, getVoiceDuration, playBgm, duckBgm, stopBgm } from "./environment/audioManager.js";
 import { playCutscene } from './environment/cutsceneManager.js';
 
 const hasFlag = (f) => GAME.flags.has(f);
@@ -43,7 +43,7 @@ function useKeyboard() {
       const k = e.key.toLowerCase();
       if (
         ["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", "e",
-          "escape",].includes(k)
+          "escape", "p"].includes(k)
       ) {
         e.preventDefault();
       }
@@ -147,8 +147,8 @@ function MobileControls({ onPress, onRelease, show = true }) {
   );
 }
 
-function createNpc({id, name, x, y, gid, dialogueId, spriteId, direction = "down",}) {
-  return {id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, cooldownMs: 400, _lastTalkAt: 0, };
+function createNpc({ id, name, x, y, gid, dialogueId, spriteId, direction = "down", }) {
+  return { id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, cooldownMs: 400, _lastTalkAt: 0, };
 }
 function getFacingToward(fromX, fromY, toX, toY) {
   const dx = toX - fromX;
@@ -188,12 +188,25 @@ export default function App() {
     credits: null,
     onContinue: null,
   });
-
+  const dialogueDoneResolverRef = useRef(null);
   const [objectivesRefresh, setObjectivesRefresh] = useState(0);
   const [segmentIndex, setSegmentIndex] = useState(0);
   const keysRef = useKeyboard();
   const isTouch = useIsTouch();
   const dialogueOpenedAtRef = useRef(0);
+  // Debug
+  useEffect(() => {
+    const checkDebugKey = () => {
+      if (keysRef.current.has('p')) {
+        const p = playerRef.current;
+        console.log(`Player coordinates: x=${p.x}, y=${p.y}`);
+        keysRef.current.delete('p');
+      }
+    };
+
+    const interval = setInterval(checkDebugKey, 100);
+    return () => clearInterval(interval);
+  }, []);
 
   const viewportRef = useRef(null);
   const [viewportPx, setViewportPx] = useState({ w: 0, h: 0 });
@@ -397,6 +410,8 @@ export default function App() {
       { flag: "cutscene_bobby_comes", cutsceneId: "bobby_comes" },
       { flag: "cutscene_bobby_moves_to_bartender", cutsceneId: "bobby_moves_to_bartender" },
       { flag: "cutscene_bobby_leaves", cutsceneId: "bobby_leaves" },
+      { flag: "cutscene_invest_end", cutsceneId: "invest_end" },
+      { flag: "cutscene_tim_leaves", cutsceneId: "tim_leaves" },
       { flag: "cutscene_ending_master", cutsceneId: "ending_master" },
 
     ];
@@ -414,6 +429,12 @@ export default function App() {
       setCreditsOverlay,
       __resolveCreditsClose: null,
       goToMainMenu,
+      waitForDialogueToEnd: () =>
+        new Promise((resolve) => {
+          dialogueDoneResolverRef.current = resolve;
+        }),
+      playBgm,
+      stopBgm,
     };
 
     for (const { flag, cutsceneId } of cutsceneTriggers) {
@@ -527,6 +548,10 @@ export default function App() {
         });
       }
       setDialogue(null);
+      if (dialogueDoneResolverRef.current) {
+        dialogueDoneResolverRef.current();
+        dialogueDoneResolverRef.current = null;
+      }
     } else {
       setDialogue((d) => ({ ...d, nodeId: nextId }));
     }
@@ -587,6 +612,10 @@ export default function App() {
 
       if (!choices.length) {
         setDialogue(null);
+        if (dialogueDoneResolverRef.current) {
+          dialogueDoneResolverRef.current();
+          dialogueDoneResolverRef.current = null;
+        }
       }
     }
 
@@ -601,7 +630,6 @@ export default function App() {
             }}
           >
             <div className="flex items-center justify-between gap-3 mb-1">
-              <div className="text-xs opacity-60">{dialogue.npcName}</div>
 
               {/* Auto controls */}
               <div className="flex items-center gap-2">
@@ -676,7 +704,7 @@ export default function App() {
     );
   }
 
-  async function loadNamedMap(name) {
+  async function loadNamedMap(name, options = {}) {
     const def = MAPS[name];
     if (!def) throw new Error(`Unknown map: ${name}`);
     setMap(null);
@@ -689,11 +717,15 @@ export default function App() {
 
 
     setMap(loaded);
-    playBgm(def?.bgm ?? "default");
+    if (!options.deferBgm) {
+      playBgm(def?.bgm ?? "default");
+    }
     setNpcs(
       def.npcs.map((n) =>
-        createNpc({id: n.id, name: n.name, x: n.x, y: n.y,
-          gid: n.gid, spriteId: n.spriteId, dialogueId: n.dialogueId, direction: n.direction ?? "down",})
+        createNpc({
+          id: n.id, name: n.name, x: n.x, y: n.y,
+          gid: n.gid, spriteId: n.spriteId, dialogueId: n.dialogueId, direction: n.direction ?? "down",
+        })
       )
     );
 
@@ -768,6 +800,7 @@ export default function App() {
           x: 25, y: 20,
           gid: 106,
           dialogueId: "marcus",
+          direction: "right",
         });
       }
       if (mayaActive) {
@@ -775,9 +808,10 @@ export default function App() {
         spawnList.push({
           id: "maya",
           name: "maya",
-          x: 6, y: 26,
+          x: 5, y: 27,
           gid: 106,
           dialogueId: "maya",
+          direction: "left",
         });
       }
       if (GAME.flags.has("flower_delivered_lucas")) {
@@ -790,8 +824,8 @@ export default function App() {
       spawnList = spawnList.filter(n => n.id !== "john" && n.id !== "tim");
 
       spawnList.push(
-        { id: "john", name: "John", x: 32, y: 11, gid: 451, dialogueId: "johnTim" },
-        { id: "tim", name: "Tim", x: 33, y: 11, gid: 451, dialogueId: "johnTim" }
+        { id: "johnArgue", name: "John", x: 32, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "john", direction: "right", },
+        { id: "timArgue", name: "Tim", x: 33, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "tim", direction: "left", }
       );
     }
     if (johnTimActive && name == "johnsHouse") {
@@ -804,9 +838,10 @@ export default function App() {
         spawnList.push({
           id: "bobby",
           x: 8,
-          y: 9,
+          y: 10,
           gid: 3586,
           dialogueId: "bobbyBartender",
+          direction: "up",
         });
       }
 
@@ -1370,20 +1405,19 @@ export default function App() {
   const availW = viewportPx.w || VIEW_COLS * tileW * BASE_SCALE;
   const availH = viewportPx.h || VIEW_ROWS * tileH * BASE_SCALE;
 
-  // Camera window in tiles
-  const effCols = Math.max(
-    10,
-    Math.min(maxCols, Math.floor(availW / (tileW * BASE_SCALE)))
-  );
-  const effRows = Math.max(
-    8,
-    Math.min(maxRows, Math.floor(availH / (tileH * BASE_SCALE)))
-  );
+  const isDesktop = viewportPx.w >= 1024;
+
+  const effCols = isDesktop
+    ? Math.min(VIEW_COLS, maxCols)
+    : Math.max(10, Math.min(maxCols, Math.floor(availW / (tileW * BASE_SCALE))));
+
+  const effRows = isDesktop
+    ? Math.min(VIEW_ROWS, maxRows)
+    : Math.max(8, Math.min(maxRows, Math.floor(availH / (tileH * BASE_SCALE))));
 
   const scaleW = Math.floor(availW / (effCols * tileW));
   const scaleH = Math.floor(availH / (effRows * tileH));
   const renderScale = Math.max(1, Math.min(scaleW, scaleH));
-
   useEffect(() => {
     if (!map) return;
     const c = canvasRef.current;
@@ -1497,6 +1531,11 @@ export default function App() {
           ctx.restore();
         }
       }
+      const npcIdsWithWaypoints = new Set(
+        activeObjectives.flatMap(obj => getObjectiveWaypoints(obj, GAME))
+          .filter(wp => wp.type === "npc")
+          .map(wp => wp.id)
+      );
       // Draw NPCs with proximity glow
       for (const npc of npcs) {
         const rx = (npc.x - cam.x) * tw;
@@ -1504,6 +1543,30 @@ export default function App() {
         const close = isAdjacentToPlayer(npc.x, npc.y);
 
         ctx.save();
+        if (npc.dialogueId && !npcIdsWithWaypoints.has(npc.id) && !dialogue) {
+          const bx = rx + tw / 2;
+          const by = ry - th * 1.8;
+          const bw = tw * 1.4;
+          const bh = th * 0.7;
+
+          ctx.fillStyle = "rgba(255,255,255,0.92)";
+          ctx.beginPath();
+          ctx.roundRect(bx - bw / 2, by - bh / 2, bw, bh, 3);
+          ctx.fill();
+
+          // tail
+          ctx.beginPath();
+          ctx.moveTo(bx - 3, by + bh / 2);
+          ctx.lineTo(bx + 3, by + bh / 2);
+          ctx.lineTo(bx, by + bh / 2 + 4);
+          ctx.fill();
+
+          ctx.fillStyle = "#1e293b";
+          ctx.font = `bold ${Math.floor(tw * 0.5)}px monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText("...", bx, by);
+        }
         if (close) {
           ctx.filter = "brightness(1.35)";
           ctx.shadowColor = "rgba(255,255,255,0.35)";
@@ -1511,7 +1574,7 @@ export default function App() {
         }
         if (npc._img) {
           const { row, flipX } = facingToRender(npc.direction ?? "down");
-          const sx = 0; 
+          const sx = 0;
           const sy = row * SPRITE.fh;
 
           if (flipX) {

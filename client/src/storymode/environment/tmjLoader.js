@@ -26,8 +26,19 @@ function toGrid(arr, width) {
   }
   return grid;
 }
-
+const FLIP_H = 0x80000000;
+const FLIP_V = 0x40000000;
+const FLIP_D = 0x20000000;
 const FLIP_MASK = 0x1fffffff;
+export async function loadNpcImages(npcs) {
+  const { getNpcSprite } = await import("./npcSprites.js");
+
+  for (const npc of npcs) {
+    const src = getNpcSprite(npc.spriteId ?? npc.id);
+    if (!src) continue;
+    npc._img = await loadImage(src);
+  }
+}
 
 export async function loadTMJ(url, opts = {}) {
   const mapUrl = new URL(url, location.href);
@@ -93,15 +104,23 @@ export async function loadTMJ(url, opts = {}) {
 
 export function gidToDrawInfo(rawGid, tilesets) {
   if (!rawGid) return null;
+
+  const flipH = (rawGid & FLIP_H) !== 0;
+  const flipV = (rawGid & FLIP_V) !== 0;
+  const flipD = (rawGid & FLIP_D) !== 0;
+
   const gid = rawGid & FLIP_MASK;
+
   let chosen = null;
   for (const ts of tilesets) {
     if (gid >= ts.firstgid) chosen = ts;
     else break;
   }
   if (!chosen) return null;
+
   const local = gid - chosen.firstgid;
   const sx = (local % chosen.cols) * chosen.tw;
   const sy = Math.floor(local / chosen.cols) * chosen.th;
-  return { img: chosen.img, sx, sy, sw: chosen.tw, sh: chosen.th };
+
+  return { img: chosen.img, sx, sy, sw: chosen.tw, sh: chosen.th, flipH, flipV, flipD };
 }

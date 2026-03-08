@@ -19,7 +19,8 @@ const OBJECTIVES_CONFIG = {
     waypoints: [
       { type: "npc", id: "lucas", hideWhenFlag: "talkedToLucas" },
       { type: "npc", id: "bobby", hideWhenFlag: "talkedToBobby" },
-      { type: "npc", id: "jackAlex", hideWhenFlag: "talkedToJackAlex" },
+      { type: "npc", id: "jack", hideWhenFlag: "talkedToJackAlex" },
+      { type: "npc", id: "alex", hideWhenFlag: "talkedToJackAlex" },
     ],
   },
   talk_to_jim: {
@@ -30,7 +31,7 @@ const OBJECTIVES_CONFIG = {
     completesWhen: { flagsAny: ['talkedToJim', 'talkedToDonna'] },
     waypoints: [
       { type: "npc", id: "jim" },
-      { type: "npc", id: "doona" }
+      { type: "npc", id: "donna" }
     ],
   },
   talk_to_john: {
@@ -49,6 +50,15 @@ const OBJECTIVES_CONFIG = {
     completesWhen: { flagsAny: ['talkedToSam'] },
     waypoint: { type: "npc", id: "sam" }
   },
+  check_on_lucas: {
+    id: "check_on_lucas",
+    title: "Check in on Lucas",
+    description: "Looks like Lucas's poem worked! I'll check in on him later if I feel like it.",
+    optional: true,
+    appearsWhen: { flagsAll: ["poem_grade_good", "debriefed"], },
+    completesWhen: { flagsAny: ['lucas_needs_flowers'] },
+    waypoint: { type: "npc", id: "lucasCity" }
+  },
   travel_to_city: {
     id: 'travel_to_city',
     title: '(OPTIONAL) Travel to the City',
@@ -63,7 +73,7 @@ const OBJECTIVES_CONFIG = {
     description: "Find out where Jane ran off to",
     optional: true,
     waypoint: { type: "npc", id: "jane" },
-    appearsWhen: { flagsAny: ['john_argument', 'arrivedIniCty'] },
+    appearsWhen: { flagsAny: ['john_argument', 'arrivedInCity'] },
     completesWhen: { flagsAny: ['foundJane'] }
   },
   buy_flowers: {
@@ -92,11 +102,11 @@ const OBJECTIVES_CONFIG = {
   },
   talk_to_gambler: {
     id: 'talk_to_gambler',
-    title: '(OPTIONAL) Talk to person who gambled with John.',
+    title: '(OPTIONAL) Talk to the person who gambled with John.',
     optional: true,
     waypoint: { type: "npc", id: "gambler" },
     appearsWhen: { flagsAll: ['gambler_location_known'] },
-    completesWhen: { flagsAny: ['talkedToGambler', 'talkedToGambler'] }
+    completesWhen: { flagsAny: ['talkedToGambler'] }
   },
   help_bobby: {
     id: 'talk_to_bobby_bar',
@@ -105,6 +115,15 @@ const OBJECTIVES_CONFIG = {
     appearsWhen: { flagsAll: ['bobby_investigation_bar'] },
     completesWhen: { flagsAny: ['met_bobby_in_bar'] },
     waypoint: { type: "npc", id: "bobby" }
+  },
+  big_sneak: {
+    id: 'big_sneak',
+    title: '(OPTIONAL) Find the big sneak.',
+    description: "Apparently, there's an item called “The Big Sneak” that everyone is looking for. The problem is I have no clue where to start looking.",
+    optional: true,
+    appearsWhen: { flagsAll: ['big_sneak_active'] },
+    completesWhen: { flagsAny: ['secret_sneak_end', 'sneak_end'] },
+    waypoint: { type: "npc", id: "sneak" }
   },
   end_investigation: {
     id: 'end_investigation',

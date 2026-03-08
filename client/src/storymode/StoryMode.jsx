@@ -408,6 +408,8 @@ export default function App() {
       { flag: "cutscene_lucas_goes_to_maya", cutsceneId: "lucas_goes_to_maya" },
       { flag: "cutscene_marcus_leaves", cutsceneId: "marcus_leaves" },
       { flag: "cutscene_bobby_comes", cutsceneId: "bobby_comes" },
+      { flag: "cutscene_frank_comes", cutsceneId: "frank_comes" },
+      { flag: "cutscene_sneak_taken", cutsceneId: "sneak_taken" },
       { flag: "cutscene_bobby_moves_to_bartender", cutsceneId: "bobby_moves_to_bartender" },
       { flag: "cutscene_bobby_leaves", cutsceneId: "bobby_leaves" },
       { flag: "cutscene_invest_end", cutsceneId: "invest_end" },
@@ -759,6 +761,7 @@ export default function App() {
 
     const movedToBar = GAME.flags.has("bobby_investigation_bar");
     const johnTimActive = GAME.flags.has("talkedToJane");
+    const sneakActive = GAME.flags.has("found_sneak") || GAME.flags.has("sneak_end");
     const marcusActive =
       (GAME.flags.has("BobbyDirty") || GAME.flags.has("BobbyGood")) &&
       !GAME.flags.has("marcus_comforts_bobby_bar");
@@ -831,7 +834,9 @@ export default function App() {
     if (johnTimActive && name == "johnsHouse") {
       spawnList = spawnList.filter(npc => npc.id !== "john");
     }
-
+    if (sneakActive && name == "neighborhood") {
+      spawnList = spawnList.filter(npc => npc.id !== "sneak");
+    }
     if (movedToBar) {
       if (name === "bar") {
         spawnList = spawnList.filter(n => n.id !== "bobby");
@@ -989,24 +994,23 @@ export default function App() {
     return named || null;
   }
 
-function isBlocked(nx, ny) {
-  if (!map) return true;
+  function isBlocked(nx, ny) {
+    if (!map) return true;
+    if (ny < 0 || nx < 0 || ny >= map.height || nx >= map.width) return true;
 
-  if (ny < 0 || nx < 0 || ny >= map.height || nx >= map.width) return true;
+    const collisionLayers = map.layers.slice(1);
 
-  const collisionLayers =  map.layers.slice(1);
+    for (const layer of collisionLayers) {
+      if (layer.grid?.[ny]?.[nx] !== 0) return true;
+    }
 
-  for (const layer of collisionLayers) {
-    if (layer.grid?.[ny]?.[nx] !== 0) return true;
+    // NPCs block player
+    for (const npc of npcs) {
+      if (npc.x === nx && npc.y === ny) return true;
+    }
+
+    return false;
   }
-
-  // NPCs block player
-  for (const npc of npcs) {
-    if (npc.x === nx && npc.y === ny) return true;
-  }
-
-  return false;
-}
 
   function tryStep(dx, dy) {
     if (!map) return;

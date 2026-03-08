@@ -53,11 +53,11 @@ const DEFAULT_CREDITS = {
   sections: [
     { heading: "Developer", lines: ["Keshawn Bryant"] },
     {
-      heading: "Voice Cast", lines: ["Ace — Actor", "Alex — Henry", "Bartender — Keshawn", "Bobby — Michael", "Delivery Girl — Saisindhu", "Donna — Riana",
+      heading: "Voice Cast", lines: ["Ace — Keshawn", "Alex — Henry", "Bartender — Keshawn", "Bobby — Michael", "Delivery Girl — Saisindhu", "Donna — Riana",
         "Florist — Anonymous", "Flower Promoter — Anonymous", "Gambler — Jaime", "Hayes — Garnett", "Jack — Keshawn",
         "Jane — Kiona", "Jim — Keshawn", "John — Henry", "Lieutenant — Robbie", "Lucas — Marcus", "Marcus — Eli", "Maya — Michaela", "Sam — Jewelean", "Tim — Daniel"]
     },
-    { heading: "Tilesets", lines: ["35 Character Pixel Art / yigitkinis", "Farm RPG 16x16 Tileset / Emanuelle", "Pixel Cyberpunk Interior / DyLESTorm", "City Pack / NYKNCK", "Village Building Interior Tileset / ay boy"] },
+    { heading: "Tilesets", lines: ["35 Character Pixel Art / yigitkinis", "Farm RPG 16x16 Tileset / Emanuelle", "Pixel Cyberpunk Interior / DyLESTorm", "City Pack / NYKNCK", "Village Building Interior Tileset / ay boy", "Pixel Lands Village / Trislin"] },
   ],
   footerLines: ["Thanks for playing."],
 };
@@ -67,21 +67,22 @@ export const CUTSCENES = {
     steps: [
       { type: "fade", duration: 1000, color: "#000" },
       { type: "requestName" },
-      { type: "loadMap", mapName: "office", spawn: { x: 10, y: 12 } },
+      { type: "loadMap", mapName: "office", spawn: { x: 10, y: -5 } },
+      { type: "fade", duration: 600, color: "transparent" },
       {
         type: "startDialogue",
         npcId: "lieutenant",
-        dialogueId: "lieutenant"
+        dialogueId: "lieutenant",
+        nodeId: "intro"
       },
 
-      { type: "fade", duration: 600, color: "transparent" },
     ]
   },
   leave_office: {
     steps: [
       { type: "fade", duration: 800, color: "#000" },
       { type: "text", content: "Leaving the Lieutenant's office...", duration: 1500 },
-      { type: "loadMap", mapName: "pd", spawn: { x: 18, y: 4 } },
+      { type: "loadMap", mapName: "pd", spawn: { x: 3, y: 11 } },
       { type: "fade", duration: 800, color: "transparent" }
     ]
   },
@@ -89,8 +90,9 @@ export const CUTSCENES = {
     steps: [
       { type: "fade", duration: 600, color: "#000" },
       { type: "text", content: "Walking over to Detective Maya...", duration: 1200 },
-      { type: "movePlayer", target: { x: 1, y: 6 } },
-      { type: "moveNPC", npcId: "lucas", target: { x: 1, y: 5 }, duration: 400 },
+      { type: "movePlayer", target: { x: 31, y: 6 } },
+      { type: "moveNPC", npcId: "lucas", target: { x: 33, y: 6 }, direction: "up", duration: 400 },
+
       { type: "fade", duration: 600, color: "transparent" }
     ]
   },
@@ -99,7 +101,7 @@ export const CUTSCENES = {
 
       { type: "fade", duration: 250, color: "#000" },
       { type: "text", content: " ", duration: 500 },
-      { type: "spawnNPC", npcId: "marcus", position: { x: 1, y: 11 }, gid: 1109, spriteId: "marcus" },
+      { type: "spawnNPC", npcId: "marcus", position: { x: 7, y: 10 }, gid: 1109, spriteId: "marcus", direction: "right" },
 
       { type: "fade", duration: 250, color: "transparent" },
     ]
@@ -111,9 +113,19 @@ export const CUTSCENES = {
       { type: "despawnNPC", npcId: "maya" },
     ]
   },
+  tim_leaves: {
+    steps: [
+      { type: "text", content: "Tim leaves", duration: 900 },
+      { type: "despawnNPC", npcId: "timArgue" },
+    ]
+  },
   bobby_leaves: {
     steps: [
-      { type: "text", content: "They both leave.", duration: 900 },
+      { type: "despawnNPC", npcId: "bobby" },
+    ]
+  },
+  invest_end: {
+    steps: [
       { type: "despawnNPC", npcId: "bobbyCity" },
       { type: "despawnNPC", npcId: "delivery_girl" },
     ]
@@ -121,22 +133,22 @@ export const CUTSCENES = {
   leave_pd: {
     steps: [
       { type: "fade", duration: 500, color: "#000" },
+      { type: "stopBgm" },
       {
         type: "loadMap",
         mapName: "neighborhood",
-        spawn: { x: 6, y: 8 }
+        spawn: { x: 44, y: 67 },
+        deferBgm: true
       },
-
       { type: "wait", duration: 200 },
-
+      { type: "fade", duration: 500, color: "transparent" },
       {
         type: "startDialogue",
         npcId: "hayes",
         dialogueId: "hayes",
         nodeId: "intro"
       },
-
-      { type: "fade", duration: 500, color: "transparent" },
+      { type: "startBgm", bgm: "neighborhood" },
     ]
   },
   accuse_sam: {
@@ -144,7 +156,8 @@ export const CUTSCENES = {
       { type: "fade", duration: 800, color: "#000" },
       { type: "text", content: "Hayes walks down the street...", duration: 2000 },
       { type: "text", content: "A few moments later, he returns with Sam.", duration: 2000 },
-      { type: "fade", duration: 800, color: "transparent" }
+      { type: "fade", duration: 800, color: "transparent" },
+      { type: "spawnNPC", npcId: "sam", position: { x: 44, y: 68 }, gid: 1109, spriteId: "marcus", direction: "right" },
     ]
   },
 
@@ -221,7 +234,7 @@ export const CUTSCENES = {
       {
         type: "loadMap",
         mapName: "bar",
-        spawn: { x: 9, y: 14 }
+        spawn: { x: 22, y: 22 }
       },
 
       {
@@ -229,23 +242,25 @@ export const CUTSCENES = {
         npcId: "lucas",
         name: "Lucas",
         gid: 3586,
-        position: { x: 9, y: 13 },
+        direction: "right",
+        position: { x: 24, y: 22 },
       },
 
       {
         type: "moveNPC",
-        npcId: "lucas",
-        target: { x: 13, y: 15 },
+        npcId: "maya",
+        target: { x: 26, y: 22 },
+        direction: "left",
         duration: 400
       },
       { type: "wait", duration: 300 },
+      { type: "fade", duration: 400, color: "transparent" },
       {
         type: "startDialogue",
         npcId: "lucas",
         dialogueId: "lucasCity",
         nodeId: "flowers_to_maya_01"
       },
-      { type: "fade", duration: 400, color: "transparent" }
     ]
   },
   bobby_comes: {
@@ -254,22 +269,37 @@ export const CUTSCENES = {
       {
         type: "moveNPC",
         npcId: "bobby",
-        target: { x: 15, y: 7 },
+        target: { x: 3, y: 22 },
+        direction: "left",
         duration: 400
       },
       { type: "fade", duration: 400, color: "transparent" }
+    ]
+  },
+  frank_comes: {
+    steps: [
+      { type: "fade", duration: 500, color: "#000" },
+      { type: "spawnNPC", npcId: "frank", position: { x: 1, y: 70 }, gid: 1109, spriteId: "frank", direction: "right" },
+      { type: "despawnNPC", npcId: "sneak" },
+      { type: "fade", duration: 400, color: "transparent" }
+    ]
+  },
+  sneak_taken: {
+    steps: [
+      { type: "despawnNPC", npcId: "sneak" },
     ]
   },
   bobby_moves_to_bartender: {
     steps: [
       { type: "fade", duration: 500, color: "#000" },
       {
-        type: "moveNPC",
+        type: "spawnNPC",
         npcId: "bobby",
-        target: { x: 4, y: 14 },
+        target: { x: 8, y: 10 },
+        direction: "up",
         duration: 400
       },
-      { type: "movePlayer", target: { x: 4, y: 12 } },
+      { type: "movePlayer", target: { x: 7, y: 11 } },
       { type: "fade", duration: 400, color: "transparent" }
     ]
   },
@@ -329,7 +359,7 @@ async function executeStep(step, context) {
       });
 
     case "loadMap":
-      await context.loadNamedMap(step.mapName);
+      await context.loadNamedMap(step.mapName, { deferBgm: !!step.deferBgm });
       if (step.spawn) {
         context.playerRef.current.x = step.spawn.x;
         context.playerRef.current.y = step.spawn.y;
@@ -354,27 +384,26 @@ async function executeStep(step, context) {
       return;
     }
     case "startDialogue": {
-      const DLG = context.DIALOGUE;
-      if (!DLG) {
-        console.warn("startDialogue: context.DIALOGUE missing");
-        return;
-      }
-
-      const dlg = DLG[step.dialogueId];
-      if (!dlg) {
-        console.warn(`Dialogue not found: ${step.dialogueId}`);
-        return;
-      }
-      const npc = Array.isArray(context.npcs)
-        ? context.npcs.find(n => n.id === step.npcId)
-        : null;
+      const { npcId, dialogueId, nodeId } = step;
 
       context.setDialogue({
-        npcId: step.npcId,
-        dlgId: step.dialogueId,
-        nodeId: step.nodeId ?? dlg.start,
+        npcId,
+        npcName: npcId,
+        dlgId: dialogueId,
+        nodeId: nodeId || "start",
       });
 
+      if (typeof context.waitForDialogueToEnd === "function") {
+        await context.waitForDialogueToEnd();
+      }
+      return;
+    }
+    case "startBgm": {
+      context.playBgm(step.bgm);
+      return;
+    }
+    case "stopBgm": {
+      context.stopBgm(step.bgm);
       return;
     }
     case "branch": {
@@ -447,7 +476,7 @@ async function executeStep(step, context) {
 }
 
 function moveNpc(step, context) {
-  const { npcId, target } = step;
+  const { npcId, target, direction } = step;
   if (!npcId || !target) {
     console.warn("moveNPC missing npcId/target", step);
     return;
@@ -464,13 +493,13 @@ function moveNpc(step, context) {
       return prev;
     }
     const next = prev.slice();
-    next[idx] = { ...next[idx], x: target.x, y: target.y };
+    next[idx] = { ...next[idx], x: target.x, y: target.y, ...(direction ? { direction } : null), };
     return next;
   });
 }
 
 async function spawnNpc(step, context) {
-  const { npcId, position, gid, name, dialogueId, spriteId } = step;
+  const { npcId, position, gid, name, dialogueId, spriteId, direction } = step;
   if (!npcId || !position) {
     console.warn("spawnNPC missing npcId/position", step);
     return;
@@ -497,6 +526,7 @@ async function spawnNpc(step, context) {
     gid: gid ?? 0,
     dialogueId,
     spriteId: spriteId ?? npcId,
+    direction: direction ?? "down",
     cooldownMs: 400,
   };
 

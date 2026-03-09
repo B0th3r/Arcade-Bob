@@ -33,7 +33,8 @@ export const MAPS = {
     { id: "jack", x: 37, y: 12, gid: 1105, dialogueId: "jackAlex" },
     { id: "alex", x: 36, y: 12, gid: 1105, dialogueId: "jackAlex" },
     { id: "maya", x: 33, y: 4, gid: 1105, },
-    { id: "ace", x: 38, y: 4, gid: 1105, dialogueId: "ace" }
+    { id: "ace", x: 38, y: 4, gid: 1105, dialogueId: "ace" },
+    { id: "jenny", x: 26, y: 10, gid: 1105, dialogueId: "jenny", direction: "left" }
     ],
     bgm: "pd",
   },
@@ -44,6 +45,12 @@ export const MAPS = {
     { id: "bartender", gid: 106 },
     { id: "marcus", gid: 106 },
     { id: "gambler", x: 1, y: 20, gid: 3586, dialogueId: "gambler", direction: "right" },
+    { id: "bar_npc1", x: 18, y: 12, gid: 3586, direction: "right" },
+    { id: "bar_npc2", x: 20, y: 12, gid: 3586, direction: "left" },
+    { id: "bar_npc3", x: 3, y: 25, gid: 3586},
+    { id: "bar_npc4", x: 23, y: 25, gid: 3586, direction: "left"},
+    { id: "bar_npc5", x: 3, y: 10, gid: 3586, direction: "up"},
+    { id: "bar_npc6", x: 9, y: 6, gid: 3586, direction: "left"},
     { id: "maya", x: 26, y: 22, gid: 3586, dialogueId: "mayaBar" },
     ],
     bgm: "bar",
@@ -56,7 +63,8 @@ export const MAPS = {
     start: { x: 16, y: 17 },
     npcs: [
       { id: "florist", x: 1, y: 5, gid: 106, dialogueId: "florist" },
-      { id: "angry_patron", name: "Angry Patron", x: 12, y: 6, gid: 106, dialogueId: "angry_patron", direction: "up" },
+      { id: "angry_patron", name: "Angry Patron", x: 4, y: 18, gid: 106, dialogueId: "angry_patron", direction: "left" },
+      { id: "happy_patron", name: "Happy Patron", x: 12, y: 6, gid: 106, dialogueId: "happy_patron", direction: "up" },
     ],
     exits: [
       { x: 16, y: 17, to: "city", toStart: { x: 34, y: 25 } },
@@ -70,6 +78,7 @@ export const MAPS = {
     autoStartDialogue: true,
     npcs: [
       { id: "lucasCity", x: 39, y: 8, gid: 106, dialogueId: "lucasCity", spriteId: "lucas" },
+      { id: "lost_man", x: 29, y: 8, gid: 106, dialogueId: "lost_man", spriteId: "lost_man" },
       { id: "frank", x: 1, y: 14, gid: 106, dialogueId: "frank", direction: "right"},
       { id: "bobbyCity", x: 10, y: 25, gid: 106, dialogueId: "bobby", spriteId: "bobby", direction: "right" },
       { id: "delivery_girl", x: 12, y: 25, gid: 106, dialogueId: "bobby", direction: "left" },

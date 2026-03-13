@@ -185,6 +185,7 @@ export default function App() {
   const [objectivesMinimized, setObjectivesMinimized] = useState(true);
   const viewColsRef = useRef(VIEW_COLS);
   const viewRowsRef = useRef(VIEW_ROWS);
+
   const [creditsOverlay, setCreditsOverlay] = useState({
     visible: false,
     credits: null,
@@ -1200,7 +1201,7 @@ export default function App() {
     if (!played) stopVoice();
 
   }, [dialogue, segmentIndex]);
-  
+  /*
   useEffect(() => {
     playCutscene("intro_boot", {
       loadNamedMap,
@@ -1215,7 +1216,7 @@ export default function App() {
       setFadeOverlay
     });
   }, []);
-
+*/
   useEffect(() => {
     const dlg = dialogue ? DIALOGUE[dialogue.dlgId] : null;
     const node = dlg ? dlg.nodes[dialogue.nodeId] : null;
@@ -1766,6 +1767,7 @@ export default function App() {
                 defaultOpen={false}
                 onActiveObjectives={setActiveObjectives}
               />
+              {/* Map button — mirrors the Objectives button style */}
               <div className="absolute pointer-events-none inset-0 z-50">
                 <MapButton
                   isTouch={isTouch}

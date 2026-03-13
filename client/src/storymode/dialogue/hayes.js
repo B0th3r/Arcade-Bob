@@ -457,15 +457,16 @@ const hayesDialogue = {
           speaker: "hayes",
           text: "Okay, stay here. I'll bring them over.",
           voice: "bringing_subject_02",
-        }
+        },
+        {
+          text: "",
+          cutscene: "accuse_tim",
+        },
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_tim");
-      },
       choices: [
         {
           label: "[Continue]",
-          next: "tim_arrives"
+          next: "end"
         }
       ]
     },
@@ -689,7 +690,7 @@ const hayesDialogue = {
           voice: "taunted",
         }
       ],
-     choices: [
+      choices: [
         {
           label: "He makes a great point. Your under arrest Hayes.",
           next: "arrest",
@@ -744,15 +745,17 @@ const hayesDialogue = {
           speaker: "hayes",
           text: "Okay, stay here. I'll bring them over.",
           voice: "bringing_subject_02",
-        }
+        },
+        {
+          text: "",
+          cutscene: "accuse_sam",
+        },
+
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_sam");
-      },
       choices: [
         {
           label: "[Continue]",
-          next: "sam_arrives"
+          next: "end"
         }
       ]
     },
@@ -900,11 +903,12 @@ const hayesDialogue = {
         { text: "(You tell Hayes everything.)" },
         { text: "(Excluding your illegal ventures, of course.)", requires: { flagsAll: ["BobbyDirty"] } },
         { speaker: "hayes", text: "Okay, stay here. I'll bring them over.", voice: "bringing_subject_02" },
+        {
+          text: "",
+          cutscene: "accuse_jane",
+        },
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_jane");
-      },
-      choices: [{ label: "[Continue]", next: "jane_arrives" }],
+      choices: [{ label: "[Continue]", next: "end" }],
     },
 
     jane_arrives: {
@@ -953,11 +957,12 @@ const hayesDialogue = {
         { text: "(You tell Hayes everything.)" },
         { text: "(Excluding your illegal ventures, of course.)", requires: { flagsAll: ["BobbyDirty"] } },
         { speaker: "hayes", text: "Okay, stay here. I'll bring them over.", voice: "bringing_subject_02" },
+        {
+          text: "",
+          cutscene: "accuse_donna",
+        },
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_donna");
-      },
-      choices: [{ label: "[Continue]", next: "donna_arrives" }],
+      choices: [{ label: "[Continue]", next: "end" }],
     },
 
     donna_arrives: {
@@ -1063,11 +1068,12 @@ const hayesDialogue = {
         { text: "(You tell Hayes everything.)" },
         { text: "(Excluding your illegal ventures, of course.)", requires: { flagsAll: ["BobbyDirty"] } },
         { speaker: "hayes", text: "Okay, stay here. I'll bring them over.", voice: "bringing_subject_02" },
+        {
+          text: "",
+          cutscene: "accuse_florist",
+        },
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_florist");
-      },
-      choices: [{ label: "[Continue]", next: "florist_arrives" }],
+      choices: [{ label: "[Continue]", next: "end" }],
     },
 
     florist_arrives: {
@@ -1130,11 +1136,12 @@ const hayesDialogue = {
         { text: "(You tell Hayes everything.)" },
         { text: "(Excluding your illegal ventures, of course.)", requires: { flagsAll: ["BobbyDirty"] } },
         { speaker: "hayes", text: "Okay, stay here. I'll bring them over.", voice: "bringing_subject_02" },
+        {
+          text: "",
+          cutscene: "accuse_jim",
+        },
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_jim");
-      },
-      choices: [{ label: "[Continue]", next: "jim_arrives" }],
+      choices: [{ label: "[Continue]", next: "end" }],
     },
 
     jim_arrives: {
@@ -1155,10 +1162,11 @@ const hayesDialogue = {
         { text: "(You tell Hayes everything.)" },
         { text: "(Excluding your illegal ventures, of course.)", requires: { flagsAll: ["BobbyDirty"] } },
         { speaker: "hayes", text: "Okay, stay here. I'll bring them over.", voice: "bringing_subject_02" },
+        {
+          text: "",
+          cutscene: "accuse_john",
+        },
       ],
-      onEnter: (state) => {
-        state.flags.add("cutscene_accuse_john");
-      },
       choices: [{ label: "[Continue]", next: "john_arrives" }],
     },
 

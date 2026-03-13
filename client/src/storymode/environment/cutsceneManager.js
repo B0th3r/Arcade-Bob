@@ -102,7 +102,6 @@ export const CUTSCENES = {
       { type: "fade", duration: 250, color: "#000" },
       { type: "text", content: " ", duration: 500 },
       { type: "spawnNPC", npcId: "marcus", position: { x: 7, y: 10 }, gid: 1109, spriteId: "marcus", direction: "right" },
-
       { type: "fade", duration: 250, color: "transparent" },
     ]
   },
@@ -156,8 +155,16 @@ export const CUTSCENES = {
       { type: "fade", duration: 800, color: "#000" },
       { type: "text", content: "Hayes walks down the street...", duration: 2000 },
       { type: "text", content: "A few moments later, he returns with Sam.", duration: 2000 },
+      { type: "movePlayer", target: { x: 45, y: 67 } },
+      { type: "moveNPC", npcId: "sam", target: { x: 43, y: 67 }, gid: 1109, direction: "right" },
+      { type: "moveNPC", npcId: "hayes", target: { x: 44, y: 66 }, gid: 1109, direction: "down" },
+      {
+        type: "startDialogue",
+        npcId: "hayes",
+        dialogueId: "hayes",
+        nodeId: "sam_arrives"
+      },
       { type: "fade", duration: 800, color: "transparent" },
-      { type: "spawnNPC", npcId: "sam", position: { x: 44, y: 68 }, gid: 1109, spriteId: "marcus", direction: "right" },
     ]
   },
 
@@ -167,7 +174,16 @@ export const CUTSCENES = {
       { type: "text", content: "Hayes heads toward Tim's usual spot...", duration: 2000 },
       { type: "text", content: "You hear shouting in the distance.", duration: 2000 },
       { type: "text", content: "Hayes drags Tim back, who's protesting loudly.", duration: 2500 },
-      { type: "fade", duration: 800, color: "transparent" }
+      { type: "movePlayer", target: { x: 45, y: 67 } },
+      { type: "moveNPC", npcId: "tim", target: { x: 43, y: 67 }, gid: 1109, direction: "right" },
+      { type: "moveNPC", npcId: "hayes", target: { x: 44, y: 66 }, gid: 1109, direction: "down" },
+      {
+        type: "startDialogue",
+        npcId: "hayes",
+        dialogueId: "hayes",
+        nodeId: "tim_arrives"
+      },
+      { type: "fade", duration: 800, color: "transparent" },
     ]
   },
 
@@ -176,6 +192,15 @@ export const CUTSCENES = {
       { type: "fade", duration: 800, color: "#000" },
       { type: "text", content: "Hayes walks to John's house...", duration: 2000 },
       { type: "text", content: "After a brief conversation, John agrees to come.", duration: 2500 },
+      { type: "movePlayer", target: { x: 45, y: 67 } },
+      { type: "spawnNPC", npcId: "john", position: { x: 43, y: 67 }, gid: 1109, spriteId: "john", direction: "right" },
+      { type: "moveNPC", npcId: "hayes", target: { x: 44, y: 66 }, gid: 1109, direction: "down" },
+      {
+        type: "startDialogue",
+        npcId: "hayes",
+        dialogueId: "hayes",
+        nodeId: "john_arrives"
+      },
       { type: "fade", duration: 800, color: "transparent" }
     ]
   },
@@ -185,6 +210,15 @@ export const CUTSCENES = {
       { type: "fade", duration: 800, color: "#000" },
       { type: "text", content: "Hayes goes to find Jane...", duration: 2000 },
       { type: "text", content: "She looks resigned as she walks back with him.", duration: 2500 },
+      { type: "movePlayer", target: { x: 45, y: 67 } },
+      { type: "spawnNPC", npcId: "jane", position: { x: 43, y: 67 }, gid: 1109, spriteId: "jane", direction: "right" },
+      { type: "moveNPC", npcId: "hayes", target: { x: 44, y: 66 }, gid: 1109, direction: "down" },
+      {
+        type: "startDialogue",
+        npcId: "hayes",
+        dialogueId: "hayes",
+        nodeId: "jane_arrives"
+      },
       { type: "fade", duration: 800, color: "transparent" }
     ]
   },
@@ -195,6 +229,15 @@ export const CUTSCENES = {
       { type: "text", content: "Hayes approaches Jim and Donna's house...", duration: 2000 },
       { type: "text", content: "Donna emerges, confused and angry.", duration: 2000 },
       { type: "text", content: "Hayes escorts her back.", duration: 2000 },
+      { type: "movePlayer", target: { x: 45, y: 67 } },
+      { type: "spawnNPC", npcId: "donna", position: { x: 43, y: 67 }, gid: 1109, spriteId: "donna", direction: "right" },
+      { type: "moveNPC", npcId: "hayes", target: { x: 44, y: 66 }, gid: 1109, direction: "down" },
+      {
+        type: "startDialogue",
+        npcId: "hayes",
+        dialogueId: "hayes",
+        nodeId: "donna_arrives"
+      },
       { type: "fade", duration: 800, color: "transparent" }
     ]
   },
@@ -205,6 +248,15 @@ export const CUTSCENES = {
       { type: "text", content: "Hayes heads to the flower shop...", duration: 2000 },
       { type: "text", content: "The flower boy looks completely bewildered.", duration: 2500 },
       { type: "text", content: "He nervously follows Hayes back.", duration: 2000 },
+      { type: "movePlayer", target: { x: 45, y: 67 } },
+      { type: "spawnNPC", npcId: "florist", position: { x: 43, y: 67 }, gid: 1109, spriteId: "florist", direction: "right" },
+      { type: "moveNPC", npcId: "hayes", target: { x: 44, y: 66 }, gid: 1109, direction: "down" },
+      {
+        type: "startDialogue",
+        npcId: "hayes",
+        dialogueId: "hayes",
+        nodeId: "florist_arrives"
+      },
       { type: "fade", duration: 800, color: "transparent" }
     ]
   },

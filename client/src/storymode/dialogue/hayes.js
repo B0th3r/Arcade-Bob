@@ -228,11 +228,6 @@ const hayesDialogue = {
           set: { flagsAdd: ["accused_john"] }
         },
         {
-          label: "Jim just lost that money",
-          next: "confirm_accusation",
-          set: { flagsAdd: ["accused_jim"] }
-        },
-        {
           label: "It was Tim.",
           next: "confirm_accusation",
           set: { flagsAdd: ["accused_tim"] }
@@ -254,11 +249,13 @@ const hayesDialogue = {
           requires: { flagsAll: ["talkedToJane"] },
           set: { flagsAdd: ["accused_jane"] }
         },
+        /*
         {
           label: "Money's long gone Jim just lost it",
           next: "confirm_accusation",
           set: { flagsAdd: ["accused_jim"] }
         },
+        */
       ]
     },
 
@@ -303,7 +300,7 @@ const hayesDialogue = {
         {
           label: "[Continue]",
           next: "lucas_interruption",
-          requires: { flagsAny: ["you_screwed_lucas", "hayes_screwed_lucas"], FlagsAll: ["lucas_needs_flowers", "talkedToLucas"] }
+          requires: { flagsAny: ["you_screwed_lucas", "hayes_screwed_lucas"], flagsAll: ["lucas_needs_flowers", "talkedToLucas"] }
         },
         {
           label: "[Continue]",
@@ -425,7 +422,7 @@ const hayesDialogue = {
           requires: { flagsAll: ["accused_jane"] }
         },
         {
-          label: "is our suspect",
+          label: "Donna is our suspect",
           next: "accuse_donna",
           requires: { flagsAll: ["accused_donna"] }
         },
@@ -442,6 +439,7 @@ const hayesDialogue = {
       ]
     },
     accuse_tim: {
+      set: { flagsAdd: ["mixed_end"] },
       segments: [
         {
           speaker: "hayes",
@@ -511,7 +509,7 @@ const hayesDialogue = {
           requires: { notFlags: ["pressed"] }
         },
         {
-          label: "Taunt",
+          label: "What? Got nothing to say Timothy?",
           next: "tim_taunt",
           requires: { notFlags: ["taunted"] }
         },
@@ -582,8 +580,8 @@ const hayesDialogue = {
           next: "arrest",
           requires: { flagsAll: ["tim_accusation"] },
           set: {
-            flagsAdd: ["accused_hayes"],
-            flagsRemove: ["accused_tim"]
+            flagsAdd: ["accused_hayes", "bad_end"],
+            flagsRemove: ["accused_tim", "mixed_end"]
           }
         },
         {
@@ -607,7 +605,7 @@ const hayesDialogue = {
           requires: { notFlags: ["pressed"] }
         },
         {
-          label: "Taunt",
+          label: "What? Got nothing to say Timothy?",
           next: "tim_taunt",
           requires: { notFlags: ["taunted"] }
         },
@@ -640,7 +638,11 @@ const hayesDialogue = {
         {
           label: "He makes a great point. Your under arrest Hayes.",
           next: "arrest",
-          requires: { flagsAll: ["tim_accusation"] }
+          requires: { flagsAll: ["tim_accusation"] },
+          set: {
+            flagsAdd: ["accused_hayes", "bad_end"],
+            flagsRemove: ["accused_tim", "mixed_end"]
+          }
         },
         {
           label: "You stole it during John and Janes argument",
@@ -663,7 +665,7 @@ const hayesDialogue = {
           requires: { notFlags: ["pressed"] }
         },
         {
-          label: "Taunt",
+          label: "What? Got nothing to say Timothy?",
           next: "tim_taunt",
           requires: { notFlags: ["taunted"] }
         },
@@ -687,27 +689,30 @@ const hayesDialogue = {
           voice: "taunted",
         }
       ],
-      choices: [
+     choices: [
         {
           label: "He makes a great point. Your under arrest Hayes.",
           next: "arrest",
           requires: { flagsAll: ["tim_accusation"] },
-          set: { flagsAdd: ["tim_aligned"] }
+          set: {
+            flagsAdd: ["accused_hayes", "bad_end"],
+            flagsRemove: ["accused_tim", "mixed_end"]
+          }
         },
         {
           label: "You stole it during John and Janes argument",
           next: "tim_accusation",
-          requires: { cluesAll: ["clue_tim_heard_argument"] }
+          requires: { cluesAll: ["clue_tim_heard_argument"], notFlags: ["tim_accusation"] }
         },
         {
           label: "You claimed to see nothing while running but I know that's a lie",
           next: "tim_accusation",
-          requires: { cluesAll: ["clue_tim_saw_nothing_running"] }
+          requires: { cluesAll: ["clue_tim_saw_nothing_running"], notFlags: ["tim_accusation"] }
         },
         {
           label: "You argued with John to try to slow down the investigation",
           next: "tim_accusation",
-          requires: { cluesAll: ["clue_tim_and_john_argument"] }
+          requires: { cluesAll: ["clue_tim_and_john_argument"], notFlags: ["tim_accusation"] }
         },
         {
           label: "How did you steal the money?",
@@ -715,19 +720,13 @@ const hayesDialogue = {
           requires: { notFlags: ["pressed"] }
         },
         {
-          label: "Taunt",
-          next: "tim_taunt",
-          requires: { notFlags: ["taunted"] }
-        },
-        {
           label: "(arrest Tim)",
-          next: "arrest",
-          set: { flagsAdd: ["tim_arrest"] },
-
+          next: "arrest"
         },
       ]
     },
     accuse_sam: {
+      set: { flagsAdd: ["mixed_end"] },
       segments: [
         {
           speaker: "hayes",
@@ -788,9 +787,9 @@ const hayesDialogue = {
           requires: { notFlags: ["sam_accusation_bad"] }
         },
         {
-          label: "Taunt",
+          label: "How poor do you have to be to steal $20??",
           next: "sam_taunt",
-          requires: { notFlags: ["taunted"] }
+          requires: { notFlags: ["sam_taunted"] }
         },
         {
           label: "(arrest Sam)",
@@ -824,19 +823,14 @@ const hayesDialogue = {
       ],
       choices: [
         {
-          label: "No one had seen the wallet other than you.",
-          next: "sam_accusation_good",
-          requires: { notFlags: ["sam_accusation_good"] }
-        },
-        {
           label: "You and Jane ran off with John's money",
           next: "sam_accusation_bad",
           requires: { notFlags: ["sam_accusation_bad"], }
         },
         {
-          label: "Taunt",
+          label: "How poor do you have to be to steal $20??",
           next: "sam_taunt",
-          requires: { notFlags: ["taunted"] }
+          requires: { notFlags: ["sam_taunted"] }
         },
         {
           label: "(arrest Sam)",
@@ -865,9 +859,9 @@ const hayesDialogue = {
           requires: { notFlags: ["sam_accusation_bad"] }
         },
         {
-          label: "Taunt",
+          label: "How poor do you have to be to steal $20??",
           next: "sam_taunt",
-          requires: { notFlags: ["taunted"] }
+          requires: { notFlags: ["sam_taunted"] }
         },
         {
           label: "(arrest Sam)",
@@ -876,7 +870,7 @@ const hayesDialogue = {
       ]
     },
     sam_taunt: {
-      set: { flagsAdd: ["taunted"] },
+      set: { flagsAdd: ["sam_taunted"] },
       segments: [
         { speaker: "hayes", text: "Ha! Good one detective", voice: "taunted_suspect" },
         { speaker: "sam", text: "What the hell is wrong with you!", voice: "taunted" },
@@ -893,11 +887,6 @@ const hayesDialogue = {
           requires: { notFlags: ["sam_accusation_bad"], }
         },
         {
-          label: "Taunt",
-          next: "sam_taunt",
-          requires: { notFlags: ["taunted"] }
-        },
-        {
           label: "(arrest Sam)",
           next: "arrest"
         },
@@ -905,6 +894,7 @@ const hayesDialogue = {
     },
 
     accuse_jane: {
+      set: { flagsAdd: ["mixed_end"] },
       segments: [
         { speaker: "hayes", text: "Alright tell me everything, then I'll get them", voice: "bringing_subject_01" },
         { text: "(You tell Hayes everything.)" },
@@ -921,16 +911,15 @@ const hayesDialogue = {
       segments: [
         { speaker: "hayes", text: "Here they are", voice: "suspect_arrived" },
         { speaker: "jane", text: "Detective, you can't be serious", voice: "arrested_01" },
-        { speaker: "hayes", text: "It's okay. Just tell us what we need to know.", voice: "calming_suspect" },
       ],
       choices: [
         {
-          label: "GOOD_ACCUSATION_LABEL",
+          label: "You got mad at John then stole his money along with Jim's",
           next: "jane_accusation",
           requires: { notFlags: ["jane_accusation"] },
         },
         {
-          label: "Taunt",
+          label: "Oh I'm serious. Dead serious.",
           next: "jane_taunt",
           requires: { notFlags: ["jane_taunted"] },
         },
@@ -958,6 +947,7 @@ const hayesDialogue = {
       choices: [{ label: "[Back]", next: "jane_arrives" }],
     },
     accuse_donna: {
+      set: { flagsAdd: ["mixed_end"] },
       segments: [
         { speaker: "hayes", text: "Alright tell me everything, then I'll get them", voice: "bringing_subject_01" },
         { text: "(You tell Hayes everything.)" },
@@ -991,7 +981,7 @@ const hayesDialogue = {
           requires: { notFlags: ["donna_accusation_bad"] },
         },
         {
-          label: "Taunt",
+          label: "If you needed some pocket change, you could have just asked. Haha.",
           next: "donna_taunt",
           requires: { notFlags: ["donna_taunted"] },
         },
@@ -1007,7 +997,20 @@ const hayesDialogue = {
         { speaker: "hayes", text: "Also I highly doubt an attentive person such as yourself wouldn't have noticed the missing cash sooner.", voice: "donna_arrest_02" },
         { speaker: "donna", text: "I'm telling you guys are making the wrong decision here.", voice: "accused_good" },
       ],
-      choices: [{ label: "[Back]", next: "donna_arrives" }],
+      choices: [
+        {
+          label: "You tricked Jim to rob John.",
+          next: "donna_accusation_bad",
+          requires: { notFlags: ["donna_accusation_bad"] },
+        },
+        {
+          label: "If you needed some pocket change, you could have just asked. Haha.",
+          next: "donna_taunt",
+          requires: { notFlags: ["donna_taunted"] },
+        },
+
+        { label: "(arrest Donna)", next: "arrest" },
+      ],
     },
 
     donna_accusation_bad: {
@@ -1015,7 +1018,20 @@ const hayesDialogue = {
       segments: [
         { speaker: "donna", text: "What!? This doesn't make any sense!", voice: "accused_bad" },
       ],
-      choices: [{ label: "[Back]", next: "donna_arrives" }],
+      choices: [
+        {
+          label: "After sam returned the wallet you stole Jim's money",
+          next: "donna_accusation_good",
+          requires: { notFlags: ["donna_accusation_good"] },
+        },
+        {
+          label: "If you needed some pocket change, you could have just asked. Haha.",
+          next: "donna_taunt",
+          requires: { notFlags: ["donna_taunted"] },
+        },
+
+        { label: "(arrest Donna)", next: "arrest" },
+      ],
     },
 
     donna_taunt: {
@@ -1024,10 +1040,24 @@ const hayesDialogue = {
         { speaker: "donna", text: "What is wrong with you!", voice: "taunted" },
         { speaker: "hayes", text: "Ha! great one detective", voice: "taunted_suspect" },
       ],
-      choices: [{ label: "[Back]", next: "donna_arrives" }],
+      choices: [
+        {
+          label: "After sam returned the wallet you stole Jim's money",
+          next: "donna_accusation_good",
+          requires: { notFlags: ["donna_accusation_good"] },
+        },
+
+        {
+          label: "You tricked Jim to rob John.",
+          next: "donna_accusation_bad",
+          requires: { notFlags: ["donna_accusation_bad"] },
+        },
+        { label: "(arrest Donna)", next: "arrest" },
+      ],
     },
 
     accuse_florist: {
+      set: { flagsAdd: ["bad_end"] },
       segments: [
         { speaker: "hayes", text: "Alright tell me everything, then I'll get them", voice: "bringing_subject_01" },
         { text: "(You tell Hayes everything.)" },
@@ -1052,7 +1082,7 @@ const hayesDialogue = {
           requires: { notFlags: ["florist_accusation"] },
         },
         {
-          label: "Taunt",
+          label: "Drop the innocent act, Petal Pusher.",
           next: "florist_taunt",
           requires: { notFlags: ["florist_taunted"] },
         },
@@ -1067,7 +1097,15 @@ const hayesDialogue = {
         { speaker: "hayes", text: "You're a sneaky one I'll give you that", voice: "florist_arrest" },
         { speaker: "florist", text: "Sweetie, I didn't steal anything! I sneeze when I get nervous look (cutely sneezes)", voice: "accused" },
       ],
-      choices: [{ label: "[Back]", next: "florist_arrives" }],
+      choices: [
+        {
+          label: "Drop the innocent act, Petal Pusher.",
+          next: "florist_taunt",
+          requires: { notFlags: ["florist_taunted"] },
+        },
+
+        { label: "(arrest the flower boy)", next: "arrest" },
+      ],
     },
 
     florist_taunt: {
@@ -1077,7 +1115,14 @@ const hayesDialogue = {
         { speaker: "florist", text: "W-Why… why are you being mean.", voice: "taunted_01" },
         { speaker: "florist", text: "You already decided I was guilty, didn't you?", voice: "taunted_02" },
       ],
-      choices: [{ label: "[Back]", next: "florist_arrives" }],
+      choices: [
+        {
+          label: "Your the one who robbed John at the bar.",
+          next: "florist_accusation",
+          requires: { notFlags: ["florist_accusation"] },
+        },
+        { label: "(arrest the flower boy)", next: "arrest" },
+      ],
     },
     accuse_jim: {
       segments: [
@@ -1134,16 +1179,16 @@ const hayesDialogue = {
           next: "john_accusation",
         },
         {
-          label: "Press",
+          label: "How much money have you stolen over the years?",
           next: "john_press",
           requires: { notFlags: ["john_pressed"] }
         },
         {
-          label: "Taunt",
+          label: "How poor do you have to be to steal $20??",
           next: "john_taunt",
           requires: { notFlags: ["john_taunted"] },
         },
-        { label: "(arrest John)", next: "arrest" },
+        { label: "(arrest John)", next: "arrest", set: { flagsAdd: ["john_breaking"] } },
       ],
     },
 
@@ -1253,7 +1298,8 @@ const hayesDialogue = {
         },
         {
           label: "(Arrest him)",
-          next: "arrest"
+          next: "arrest",
+          set: { flagsAdd: ["john_breaking"] }
         }
       ],
     },
@@ -1332,7 +1378,6 @@ const hayesDialogue = {
     },
 
     john_confess: {
-      set: { flagsAdd: ["accused_john", "you_screwed_lucas", "BobbyDirty"] },
       segments: [
         { speaker: "john", text: "Okay, I'll tell you everything.", voice: "confession_start" },
         { speaker: "john", text: "That night I didn't get robbed, I lost my 30 gambling.  The robbery story was just a cover up. Truth is, this wasn't the first time. I- I've been hiding my gambling losses for months now. Lying to Jane, coming up with a new excuse every time the money disappeared", voice: "confession_01" },
@@ -1349,11 +1394,9 @@ const hayesDialogue = {
 
     john_lawyer_up: {
       segments: [
-        { speaker: "john", text: "Thats enough for me detective this interview is over", voice: "invest_end" },
+        { speaker: "john", text: "Thats enough for me detective this interview is over.", voice: "invest_end" },
       ],
-      set: {
-        flagsAdd: ["john_lawyered_up", "interrogation_failed"]
-      },
+      set: { flagsAdd: ["john_breaking"] },
       choices: [
         { label: "[End interrogation]", next: "arrest" }
       ]
@@ -1362,12 +1405,21 @@ const hayesDialogue = {
     john_press: {
       set: { flagsAdd: ["john_pressed"] },
       segments: [
-        { speaker: "hayes", text: "Answer the question!", voice: "taunted_suspect" },
-        { speaker: "john", text: "..."},
+        { speaker: "hayes", text: "Answer the question!", voice: "pressing_suspect" },
+        { speaker: "john", text: "..." },
       ],
       choices: [
-        { label: "[Back]", next: "john_arrives" }
-      ]
+        {
+          label: "We know you're the one behind both robberies.",
+          next: "john_accusation",
+        },
+        {
+          label: "How poor do you have to be to steal $20??",
+          next: "john_taunt",
+          requires: { notFlags: ["john_taunted"] },
+        },
+        { label: "(arrest John)", next: "arrest", set: { flagsAdd: ["john_breaking"] } },
+      ],
     },
 
     john_taunt: {
@@ -1384,25 +1436,31 @@ const hayesDialogue = {
         { speaker: "john", text: "Are you kidding me? What is this!", voice: "taunted_02" },
       ],
       choices: [
-        { label: "[Back]", next: "john_arrives" }
-      ]
+        {
+          label: "We know you're the one behind both robberies.",
+          next: "john_accusation",
+        },
+        {
+          label: "How much money have you stolen over the years?",
+          next: "john_press",
+          requires: { notFlags: ["john_pressed"] }
+        },
+        { label: "(arrest John)", next: "arrest", set: { flagsAdd: ["john_breaking"] } },
+      ],
     },
     arrest: {
-      onEnter: (state) => {
-        state.flags.add("cutscene_ending_master");
-      },
       segments: [
         {
           speaker: "hayes",
           text: "What!? Detective, there's no way you're falling for this!?",
           voice: "tim_got_hayes",
-          requires: { flagsAll: ["tim_aligned"] },
+          requires: { flagsAll: ["accused_hayes"] },
         },
         {
           speaker: "tim",
           text: "Ha! serves him right, justice is served.",
           voice: "hayes_05",
-          requires: { flagsAll: ["tim_aligned"] },
+          requires: { flagsAll: ["accused_hayes"] },
         },
         {
           speaker: "hayes",
@@ -1414,7 +1472,7 @@ const hayesDialogue = {
           speaker: "hayes",
           text: "I can't go in.",
           voice: "arrested_you_02",
-          requires: { flagsAll: ["marcus_caught", "tim_aligned"] },
+          requires: { flagsAll: ["marcus_caught", "accused_hayes"] },
         },
         {
           speaker: "hayes",
@@ -1433,13 +1491,18 @@ const hayesDialogue = {
           speaker: "hayes",
           text: "come on, I'm taking you in.",
           voice: "arrested_suspect_end",
-          requires: { notFlags: ["marcus_caught", "tim_aligned"] },
+          requires: { notFlags: ["marcus_caught", "accused_hayes"] },
         },
         {
           speaker: "hayes",
           text: "So come on, I'm taking you in. Along with tim",
           voice: "arrested_you_05",
-          requires: { flagsAll: ["marcus_caught", "tim_aligned"] },
+          requires: { flagsAll: ["marcus_caught", "accused_hayes"] },
+        },
+        {
+          text: "",
+          cutscene: "good_end",
+          requires: { notflags: ["marcus_caught", "accused_hayes"] },
         },
 
       ],

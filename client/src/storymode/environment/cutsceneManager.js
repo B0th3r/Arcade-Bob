@@ -289,6 +289,11 @@ export const CUTSCENES = {
       { type: "despawnNPC", npcId: "sneak" },
     ]
   },
+  lost_man_leaves: {
+    steps: [
+      { type: "despawnNPC", npcId: "lost_man" },
+    ]
+  },
   bobby_moves_to_bartender: {
     steps: [
       { type: "fade", duration: 500, color: "#000" },
@@ -301,6 +306,26 @@ export const CUTSCENES = {
       },
       { type: "movePlayer", target: { x: 7, y: 11 } },
       { type: "fade", duration: 400, color: "transparent" }
+    ]
+  },
+  good_end: {
+    steps: [
+      { type: "fade", duration: 500, color: "#000" },
+      { type: "stopBgm" },
+      {
+        type: "loadMap",
+        mapName: "office",
+        spawn: { x: 10, y: -5 },
+        deferBgm: true
+      },
+      { type: "wait", duration: 200 },
+      { type: "fade", duration: 500, color: "transparent" },
+      {
+        type: "startDialogue",
+        npcId: "lieutenant",
+        dialogueId: "lieutenant",
+        nodeId: "debrief"
+      },
     ]
   },
   ending_master: {

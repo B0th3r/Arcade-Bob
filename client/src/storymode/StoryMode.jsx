@@ -6,6 +6,8 @@ import { loadTMJ, loadImage, gidToDrawInfo, loadNpcImages } from "./environment/
 import ObjectivesPanel from './objectives';
 import { playVoice, stopVoice, getVoiceDuration, playBgm, duckBgm, stopBgm } from "./environment/audioManager.js";
 import { playCutscene } from './environment/cutsceneManager.js';
+import FullMap from './components/FullMap.jsx';
+import { X, Map as MapIcon } from 'lucide-react'
 
 const hasFlag = (f) => GAME.flags.has(f);
 const hasClue = (c) => GAME.clues.has(c);
@@ -43,7 +45,7 @@ function useKeyboard() {
       const k = e.key.toLowerCase();
       if (
         ["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", "e",
-          "escape", "p"].includes(k)
+          "escape", "p", "m"].includes(k)
       ) {
         e.preventDefault();
       }
@@ -188,12 +190,17 @@ export default function App() {
     credits: null,
     onContinue: null,
   });
+
+  const [mapOpen, setMapOpen] = useState(false);
   const dialogueDoneResolverRef = useRef(null);
   const [objectivesRefresh, setObjectivesRefresh] = useState(0);
   const [segmentIndex, setSegmentIndex] = useState(0);
   const keysRef = useKeyboard();
   const isTouch = useIsTouch();
   const dialogueOpenedAtRef = useRef(0);
+  const LARGE_MAPS = new Set(["neighborhood", "city"]);
+  const isLargeMap = LARGE_MAPS.has(currentMapNameRef.current);
+  const showMapButton = !!map && isLargeMap;
   // Debug
   useEffect(() => {
     const checkDebugKey = () => {
@@ -207,7 +214,13 @@ export default function App() {
     const interval = setInterval(checkDebugKey, 100);
     return () => clearInterval(interval);
   }, []);
-
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key.toLowerCase() === "m") setMapOpen(v => !v);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
   const viewportRef = useRef(null);
   const [viewportPx, setViewportPx] = useState({ w: 0, h: 0 });
   const [isShortHeight, setIsShortHeight] = useState(false);
@@ -221,7 +234,6 @@ export default function App() {
 
   const mapBufferRef = useRef(null);
   const mapBufferInfoRef = useRef({ name: null, w: 0, h: 0 });
-
   function drawTileWithFlips(ctx, info, dx, dy, dw, dh) {
     ctx.save();
     ctx.translate(dx + dw / 2, dy + dh / 2);
@@ -233,8 +245,6 @@ export default function App() {
     ctx.drawImage(info.img, info.sx, info.sy, info.sw, info.sh, -dw / 2, -dh / 2, dw, dh);
     ctx.restore();
   }
-
-
   function buildWorldBuffer({ map, mapName }) {
     if (!map) return;
 
@@ -370,12 +380,20 @@ export default function App() {
     _prevState: "idle",
     _prevDir: "down",
   });
+  function getPlayerFacingRadians(anim) {
+    if (!anim) return 0;
+    if (anim.dir === "up") return -Math.PI / 2;
+    if (anim.dir === "down") return Math.PI / 2;
+    if (anim.dir === "left") return anim.flipX ? Math.PI : 0;
+    return 0;
+  }
 
+  const playerFacing = getPlayerFacingRadians(animRef.current);
   function goToMainMenu() {
     navigate("/");
   }
   useEffect(() => {
-    loadNamedMap("office").catch(console.error);
+    loadNamedMap("neighborhood").catch(console.error);
   }, []);
   useEffect(() => {
     let cancelled = false;
@@ -412,8 +430,10 @@ export default function App() {
       { flag: "cutscene_sneak_taken", cutsceneId: "sneak_taken" },
       { flag: "cutscene_bobby_moves_to_bartender", cutsceneId: "bobby_moves_to_bartender" },
       { flag: "cutscene_bobby_leaves", cutsceneId: "bobby_leaves" },
+      { flag: "cutscene_lost_man_leaves", cutsceneId: "lost_man_leaves" },
       { flag: "cutscene_invest_end", cutsceneId: "invest_end" },
       { flag: "cutscene_tim_leaves", cutsceneId: "tim_leaves" },
+      { flag: "cutscene_good_end", cutsceneId: "good_end" },
       { flag: "cutscene_ending_master", cutsceneId: "ending_master" },
 
     ];
@@ -494,7 +514,9 @@ export default function App() {
         npcs,
         setNpcs,
         flags: GAME.flags,
-        setFadeOverlay
+        setFadeOverlay,
+        playBgm,
+        stopBgm,
       });
     }
 
@@ -546,7 +568,9 @@ export default function App() {
           setNpcs,
           DIALOGUE,
           flags: GAME.flags,
-          setFadeOverlay
+          setFadeOverlay,
+          playBgm,
+          stopBgm,
         });
       }
       setDialogue(null);
@@ -720,16 +744,9 @@ export default function App() {
 
     setMap(loaded);
     if (!options.deferBgm) {
-      playBgm(def?.bgm ?? "default");
+      const bgmTrack = typeof def.bgm === "function" ? def.bgm(GAME) : def.bgm;
+      playBgm(bgmTrack ?? "default");
     }
-    setNpcs(
-      def.npcs.map((n) =>
-        createNpc({
-          id: n.id, name: n.name, x: n.x, y: n.y,
-          gid: n.gid, spriteId: n.spriteId, dialogueId: n.dialogueId, direction: n.direction ?? "down",
-        })
-      )
-    );
 
     if (def.autoStartDialogue) {
       const ok =
@@ -761,6 +778,7 @@ export default function App() {
 
     const movedToBar = GAME.flags.has("bobby_investigation_bar");
     const johnTimActive = GAME.flags.has("talkedToJane");
+    const lostManActive = GAME.flags.has("mislead_lost_man") || GAME.flags.has("helped_lost_man");
     const sneakActive = GAME.flags.has("found_sneak") || GAME.flags.has("sneak_end");
     const marcusActive =
       (GAME.flags.has("BobbyDirty") || GAME.flags.has("BobbyGood")) &&
@@ -795,6 +813,9 @@ export default function App() {
     }
 
     if (name === "city") {
+      if (lostManActive) {
+        spawnList = spawnList.filter(npc => npc.id !== "lost_man");
+      }
       if (marcusActive) {
         spawnList = spawnList.filter(n => n.id !== "marcus");
         spawnList.push({
@@ -837,6 +858,7 @@ export default function App() {
     if (sneakActive && name == "neighborhood") {
       spawnList = spawnList.filter(npc => npc.id !== "sneak");
     }
+
     if (movedToBar) {
       if (name === "bar") {
         spawnList = spawnList.filter(n => n.id !== "bobby");
@@ -904,6 +926,36 @@ export default function App() {
       p.y - Math.floor(effRows / 2),
       0,
       map.height - effRows
+    );
+  }
+
+  function MapButton({ isTouch, show, onOpen }) {
+    if (!show) return null;
+
+    return (
+      <div className="absolute inset-0 z-50 pointer-events-none">
+        <button
+          type="button"
+          onClick={onOpen}
+          aria-label="Open map"
+          className={[
+            "pointer-events-auto absolute flex items-center justify-center",
+            "rounded-full bg-slate-900/90 backdrop-blur ring-1 ring-white/10 shadow-lg",
+            "hover:bg-slate-800/90 active:scale-[0.98] transition",
+            isTouch
+              ? "top-3 right-3 h-11 w-11"
+              : "bottom-4 right-44 gap-2 px-3 py-2"
+          ].join(" ")}
+        >
+          <MapIcon className="w-5 h-5 text-sky-400" />
+          {!isTouch && (
+            <>
+              <span className="text-sm font-medium text-slate-100">Map</span>
+              <span className="text-xs text-slate-400">[M]</span>
+            </>
+          )}
+        </button>
+      </div>
     );
   }
   function TopObjectiveBanner({ objective }) {
@@ -982,16 +1034,6 @@ export default function App() {
 
       }
     }
-  }
-  function getCollisionLayer() {
-    if (!map) return null;
-    const named = map.layers[1];
-    if (!named) {
-      console.warn(
-        "[collision] Missing collision layer; blocking out-of-bounds only."
-      );
-    }
-    return named || null;
   }
 
   function isBlocked(nx, ny) {
@@ -1138,6 +1180,8 @@ export default function App() {
             DIALOGUE,
             flags: GAME.flags,
             setFadeOverlay,
+            playBgm,
+            stopBgm,
           });
         }
       }
@@ -1722,6 +1766,27 @@ export default function App() {
                 defaultOpen={false}
                 onActiveObjectives={setActiveObjectives}
               />
+              <div className="absolute pointer-events-none inset-0 z-50">
+                <MapButton
+                  isTouch={isTouch}
+                  show={showMapButton}
+                  onOpen={() => setMapOpen(true)}
+                />
+              </div>
+
+              {mapOpen && (
+                <FullMap
+                  worldBufferRef={worldBufferRef}
+                  playerRef={playerRef}
+                  playerFacing={playerFacing}
+                  npcs={npcs}
+                  activeObjectives={activeObjectives}
+                  mapName={currentMapNameRef.current}
+                  exits={MAPS[currentMapNameRef.current]?.exits ?? []}
+                  map={map}
+                  onClose={() => setMapOpen(false)}
+                />
+              )}
               {transitionMessage && (
                 <div className="absolute inset-0 z-[1000] pointer-events-none grid place-items-center">
                   <div className="max-w-xl mx-4 rounded-2xl bg-slate-900/80 ring-1 ring-white/10 px-5 py-3 text-center">

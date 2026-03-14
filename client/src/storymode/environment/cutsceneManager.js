@@ -75,7 +75,6 @@ export const CUTSCENES = {
         dialogueId: "lieutenant",
         nodeId: "intro"
       },
-
     ]
   },
   leave_office: {
@@ -83,7 +82,8 @@ export const CUTSCENES = {
       { type: "fade", duration: 800, color: "#000" },
       { type: "text", content: "Leaving the Lieutenant's office...", duration: 1500 },
       { type: "loadMap", mapName: "pd", spawn: { x: 3, y: 11 } },
-      { type: "fade", duration: 800, color: "transparent" }
+      { type: "fade", duration: 800, color: "transparent" },
+      { type: "showTutorial", id: "objectives" },
     ]
   },
   going_to_maya: {
@@ -148,6 +148,9 @@ export const CUTSCENES = {
         nodeId: "intro"
       },
       { type: "startBgm", bgm: "neighborhood" },
+      { type: "wait", duration: 2000 },
+      { type: "showTutorial", id: "map" },
+      
     ]
   },
   accuse_sam: {
@@ -380,6 +383,26 @@ export const CUTSCENES = {
       },
     ]
   },
+  arrest_end: {
+    steps: [
+      { type: "fade", duration: 500, color: "#000" },
+      { type: "stopBgm" },
+      {
+        type: "loadMap",
+        mapName: "jail",
+        spawn: { x: 10, y: -5 },
+        deferBgm: true
+      },
+      { type: "wait", duration: 200 },
+      { type: "fade", duration: 500, color: "transparent" },
+      {
+        type: "startDialogue",
+        npcId: "ace",
+        dialogueId: "ace",
+        nodeId: "arrested"
+      },
+    ]
+  },
   ending_master: {
     steps: [
       { type: "fade", duration: 700, color: "#000" },
@@ -533,7 +556,12 @@ async function executeStep(step, context) {
 
       return;
     }
-
+    case "showTutorial": {
+      if (typeof context.showTutorial === "function") {
+        context.showTutorial(step.id);
+      }
+      return;
+    }
     case "wait":
       return new Promise(resolve => setTimeout(resolve, step.duration));
     case "requestName":

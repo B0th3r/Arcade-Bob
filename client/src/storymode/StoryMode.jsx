@@ -7,7 +7,7 @@ import ObjectivesPanel from './objectives';
 import { playVoice, stopVoice, getVoiceDuration, playBgm, duckBgm, stopBgm } from "./environment/audioManager.js";
 import { playCutscene } from './environment/cutsceneManager.js';
 import FullMap from './components/FullMap.jsx';
-import { X, Map as MapIcon } from 'lucide-react'
+import { Map as MapIcon } from 'lucide-react'
 
 const hasFlag = (f) => GAME.flags.has(f);
 const hasClue = (c) => GAME.clues.has(c);
@@ -148,7 +148,135 @@ function MobileControls({ onPress, onRelease, show = true }) {
     </div>
   );
 }
+function TutorialHint({ anchorRef, anchorMobileRef, steps = [], onDismiss }) {
+  const [index, setIndex] = useState(0);
+  const [btnRect, setBtnRect] = useState(null);
+  const cardRef = useRef(null);
+  const [cardRect, setCardRect] = useState(null);
+  const isLast = index === steps.length - 1;
+  function getActiveRect() {
+    // A hidden element returns width:0 height:0
+    const desktop = anchorRef?.current?.getBoundingClientRect();
+    if (desktop && desktop.width > 0) return desktop;
+    return anchorMobileRef?.current?.getBoundingClientRect() ?? null;
+  }
+  useEffect(() => {
+    const measure = () => {
+      setBtnRect(getActiveRect());
+      if (cardRef?.current) setCardRect(cardRef.current.getBoundingClientRect());
+    };
+    measure();
+    const raf = requestAnimationFrame(measure);
+    window.addEventListener("resize", measure);
+    return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", measure); };
+  }, [anchorRef, anchorMobileRef, index]);
+  
+  function buildArrow() {
+    if (!btnRect || !cardRect) return null;
 
+    const btnCx = btnRect.left + btnRect.width / 2;
+    const btnCy = btnRect.top + btnRect.height / 2;
+    const cardCx = cardRect.left + cardRect.width / 2;
+    const cardCy = cardRect.top + cardRect.height / 2;
+
+    const startX = btnCx < cardCx ? cardRect.left : cardRect.right;
+    const startY = btnCy < cardCy ? cardRect.top : cardRect.bottom;
+
+    // End point
+    const dx = btnCx - startX;
+    const dy = btnCy - startY;
+    const dist = Math.hypot(dx, dy);
+    const endX = btnCx - (dx / dist) * (btnRect.width / 2 + 6);
+    const endY = btnCy - (dy / dist) * (btnRect.height / 2 + 6);
+
+    // Cubic bezier 
+    const cpX = (startX + endX) / 2;
+    const cpY = (startY + endY) / 2 - 40;
+
+    return { path: `M ${startX} ${startY} Q ${cpX} ${cpY} ${endX} ${endY}`, endX, endY, dx, dy, dist };
+  }
+
+  function buildArrowhead(endX, endY, dx, dy, dist) {
+    const ux = dx / dist, uy = dy / dist;
+    const size = 8;
+    const lx = endX - ux * size + uy * (size / 2);
+    const ly = endY - uy * size - ux * (size / 2);
+    const rx = endX - ux * size - uy * (size / 2);
+    const ry = endY - uy * size + ux * (size / 2);
+    return `${endX},${endY} ${lx},${ly} ${rx},${ry}`;
+  }
+
+  const arrow = buildArrow();
+
+  return (
+    <div className="fixed inset-0 z-[9000] pointer-events-auto">
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+      {arrow && (
+        <svg className="absolute inset-0 w-full h-full pointer-events-none overflow-visible">
+          <path
+            d={arrow.path}
+            fill="none"
+            stroke="rgba(56,189,248,0.3)"
+            strokeWidth={6}
+            strokeLinecap="round"
+          />
+          <path
+            d={arrow.path}
+            fill="none"
+            stroke="#38bdf8"
+            strokeWidth={2}
+            strokeLinecap="round"
+            strokeDasharray="6 4"
+          >
+            <animate attributeName="stroke-dashoffset" from="0" to="-20" dur="0.6s" repeatCount="indefinite" />
+          </path>
+          <polygon
+            points={buildArrowhead(arrow.endX, arrow.endY, arrow.dx, arrow.dy, arrow.dist)}
+            fill="#38bdf8"
+          />
+        </svg>
+      )}
+
+      {/* card */}
+      <div className="absolute inset-0 grid place-items-center pointer-events-none">
+        <div
+          ref={cardRef}
+          className="pointer-events-auto w-full max-w-sm mx-6 bg-slate-900 ring-1 ring-sky-400/50 rounded-2xl shadow-2xl p-5 flex flex-col gap-4"
+        >
+          {steps.length > 1 && (
+            <div className="flex gap-1.5 justify-center">
+              {steps.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${i === index ? "bg-sky-400" : "bg-slate-600"}`}
+                />
+              ))}
+            </div>
+          )}
+
+          <p className="text-slate-100 text-sm text-center leading-relaxed">
+            {steps[index]}
+          </p>
+
+          <div className="flex justify-between items-center">
+            <button
+              onClick={onDismiss}
+              className="text-slate-500 hover:text-slate-300 text-xs transition-colors"
+            >
+              Skip
+            </button>
+            <button
+              onClick={() => isLast ? onDismiss() : setIndex(i => i + 1)}
+              className="px-4 py-1.5 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 ring-1 ring-sky-400/50 text-sky-300 text-xs font-medium transition-colors"
+            >
+              {isLast ? "Got it ✓" : "Next →"}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 function createNpc({ id, name, x, y, gid, dialogueId, spriteId, direction = "down", }) {
   return { id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, cooldownMs: 400, _lastTalkAt: 0, };
 }
@@ -185,7 +313,7 @@ export default function App() {
   const [objectivesMinimized, setObjectivesMinimized] = useState(true);
   const viewColsRef = useRef(VIEW_COLS);
   const viewRowsRef = useRef(VIEW_ROWS);
-
+  const [activeTutorial, setActiveTutorial] = useState(null);
   const [creditsOverlay, setCreditsOverlay] = useState({
     visible: false,
     credits: null,
@@ -232,7 +360,9 @@ export default function App() {
   const [autoSpeed] = useState(1.0);
   const autoGenRef = useRef(0);
   const autoTimerRef = useRef(null);
-
+  const objMobileBtnRef = useRef(null);
+  const mapBtnRef = useRef(null);
+  const objBtnRef = useRef(null);
   const mapBufferRef = useRef(null);
   const mapBufferInfoRef = useRef({ name: null, w: 0, h: 0 });
   function drawTileWithFlips(ctx, info, dx, dy, dw, dh) {
@@ -394,7 +524,7 @@ export default function App() {
     navigate("/");
   }
   useEffect(() => {
-    loadNamedMap("neighborhood").catch(console.error);
+    loadNamedMap("office").catch(console.error);
   }, []);
   useEffect(() => {
     let cancelled = false;
@@ -435,6 +565,7 @@ export default function App() {
       { flag: "cutscene_invest_end", cutsceneId: "invest_end" },
       { flag: "cutscene_tim_leaves", cutsceneId: "tim_leaves" },
       { flag: "cutscene_good_end", cutsceneId: "good_end" },
+      { flag: "cutscene_arrest_end", cutsceneId: "arrest_end" },
       { flag: "cutscene_ending_master", cutsceneId: "ending_master" },
 
     ];
@@ -458,6 +589,29 @@ export default function App() {
         }),
       playBgm,
       stopBgm,
+      showTutorial: (id) => {
+        if (id === "map" && !GAME.flags.has("hint_map_seen")) {
+          setActiveTutorial({
+            hintId: "map",
+            anchorRef: mapBtnRef,
+            steps: [
+              "Press M or click here to open the map.",
+              "The map only appears in larger areas like the neighborhood and city.",
+            ]
+          });
+        }
+        if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
+          setActiveTutorial({
+            hintId: "objectives",
+            anchorRef: objBtnRef,
+            anchorMobileRef: objMobileBtnRef,
+            steps: [
+              "Press O to open your Case Notes.",
+              "Active leads are listed here — check back as you uncover new information.",
+            ]
+          });
+        }
+      },
     };
 
     for (const { flag, cutsceneId } of cutsceneTriggers) {
@@ -518,6 +672,29 @@ export default function App() {
         setFadeOverlay,
         playBgm,
         stopBgm,
+        showTutorial: (id) => {
+          if (id === "map" && !GAME.flags.has("hint_map_seen")) {
+            setActiveTutorial({
+              hintId: "map",
+              anchorRef: mapBtnRef,
+              steps: [
+                "Press M or click here to open the map.",
+                "The map only appears in larger areas like the neighborhood and city.",
+              ]
+            });
+          }
+          if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
+            setActiveTutorial({
+              hintId: "objectives",
+              anchorRef: objBtnRef,
+              anchorMobileRef: objMobileBtnRef,
+              steps: [
+                "Press O to open your Case Notes.",
+                "Active leads are listed here — check back as you uncover new information.",
+              ]
+            });
+          }
+        },
       });
     }
 
@@ -572,6 +749,10 @@ export default function App() {
           setFadeOverlay,
           playBgm,
           stopBgm,
+          showTutorial: (id) => {
+            if (id === "map" && !GAME.flags.has("hint_map_seen")) setShowMapHint(true);
+            if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) setShowObjectivesHint(true);
+          },
         });
       }
       setDialogue(null);
@@ -930,12 +1111,13 @@ export default function App() {
     );
   }
 
-  function MapButton({ isTouch, show, onOpen }) {
+  function MapButton({ isTouch, show, onOpen, btnRef }) {
     if (!show) return null;
 
     return (
       <div className="absolute inset-0 z-50 pointer-events-none">
         <button
+          ref={btnRef}
           type="button"
           onClick={onOpen}
           aria-label="Open map"
@@ -1069,7 +1251,7 @@ export default function App() {
   function handleMovement(now) {
     const anim = animRef.current;
 
-    if (dialogue || presenting) {
+    if (dialogue || presenting || activeTutorial) {
       anim.state = "idle";
       return;
     }
@@ -1183,6 +1365,29 @@ export default function App() {
             setFadeOverlay,
             playBgm,
             stopBgm,
+            showTutorial: (id) => {
+              if (id === "map" && !GAME.flags.has("hint_map_seen")) {
+                setActiveTutorial({
+                  hintId: "map",
+                  anchorRef: mapBtnRef,
+                  steps: [
+                    "Press M or click here to open the map.",
+                    "The map only appears in larger areas like the neighborhood and city.",
+                  ]
+                });
+              }
+              if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
+                setActiveTutorial({
+                  hintId: "objectives",
+                  anchorRef: objBtnRef,
+                  anchorMobileRef: objMobileBtnRef,
+                  steps: [
+                    "Press O to open your Case Notes.",
+                    "Active leads are listed here — check back as you uncover new information.",
+                  ]
+                });
+              }
+            },
           });
         }
       }
@@ -1201,7 +1406,7 @@ export default function App() {
     if (!played) stopVoice();
 
   }, [dialogue, segmentIndex]);
-  /*
+
   useEffect(() => {
     playCutscene("intro_boot", {
       loadNamedMap,
@@ -1216,7 +1421,7 @@ export default function App() {
       setFadeOverlay
     });
   }, []);
-*/
+
   useEffect(() => {
     const dlg = dialogue ? DIALOGUE[dialogue.dlgId] : null;
     const node = dlg ? dlg.nodes[dialogue.nodeId] : null;
@@ -1766,16 +1971,28 @@ export default function App() {
                 onToggle={toggleObjectives}
                 defaultOpen={false}
                 onActiveObjectives={setActiveObjectives}
+                btnRef={objBtnRef}
+                mobileBtnRef={objMobileBtnRef}
               />
-              {/* Map button — mirrors the Objectives button style */}
               <div className="absolute pointer-events-none inset-0 z-50">
                 <MapButton
                   isTouch={isTouch}
                   show={showMapButton}
                   onOpen={() => setMapOpen(true)}
+                  btnRef={mapBtnRef}
                 />
               </div>
-
+              {activeTutorial && (
+                <TutorialHint
+                  anchorRef={activeTutorial.anchorRef}
+                  anchorMobileRef={activeTutorial.anchorMobileRef}
+                  steps={activeTutorial.steps}
+                  onDismiss={() => {
+                    GAME.flags.add(`hint_${activeTutorial.hintId}_seen`);
+                    setActiveTutorial(null);
+                  }}
+                />
+              )}
               {mapOpen && (
                 <FullMap
                   worldBufferRef={worldBufferRef}

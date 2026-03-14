@@ -5,8 +5,7 @@ const lieutenantDialogue = {
     intro: {
       segments: [
         { speaker: "lieutenant", text: "Close the door, Detective.", voice: "intro_02" },
-        { speaker: "lieutenant", text: "Last case went cold. Not because we were out of options.", voice: "intro_03" },
-        { speaker: "lieutenant", text: "But because you burned the one lead that mattered. ", voice: "intro_04" },
+        { speaker: "lieutenant", text: "Last case went cold. Because you burned the one lead that mattered.", voice: "intro_03" },
       ],
       choices: [
         { label: "I didn't burn anything.", next: "deny" },

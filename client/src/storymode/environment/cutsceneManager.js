@@ -67,7 +67,7 @@ export const CUTSCENES = {
     steps: [
       { type: "fade", duration: 1000, color: "#000" },
       { type: "requestName" },
-      { type: "loadMap", mapName: "office", spawn: { x: 10, y: -5 } },
+      { type: "loadMap", mapName: "office", spawn: { x: 10, y: -5 }, skipSave: true },
       { type: "fade", duration: 600, color: "transparent" },
       {
         type: "startDialogue",
@@ -137,7 +137,8 @@ export const CUTSCENES = {
         type: "loadMap",
         mapName: "neighborhood",
         spawn: { x: 44, y: 67 },
-        deferBgm: true
+        deferBgm: true,
+        skipSave: true
       },
       { type: "wait", duration: 200 },
       { type: "fade", duration: 500, color: "transparent" },
@@ -150,7 +151,7 @@ export const CUTSCENES = {
       { type: "startBgm", bgm: "neighborhood" },
       { type: "wait", duration: 2000 },
       { type: "showTutorial", id: "map" },
-      
+
     ]
   },
   accuse_sam: {
@@ -289,7 +290,8 @@ export const CUTSCENES = {
       {
         type: "loadMap",
         mapName: "bar",
-        spawn: { x: 22, y: 22 }
+        spawn: { x: 22, y: 22 },
+        skipSave: true
       },
 
       {
@@ -371,7 +373,8 @@ export const CUTSCENES = {
         type: "loadMap",
         mapName: "office",
         spawn: { x: 10, y: -5 },
-        deferBgm: true
+        deferBgm: true,
+        skipSave: true
       },
       { type: "wait", duration: 200 },
       { type: "fade", duration: 500, color: "transparent" },
@@ -391,7 +394,8 @@ export const CUTSCENES = {
         type: "loadMap",
         mapName: "jail",
         spawn: { x: 10, y: -5 },
-        deferBgm: true
+        deferBgm: true,
+        skipSave: true
       },
       { type: "wait", duration: 200 },
       { type: "fade", duration: 500, color: "transparent" },
@@ -459,7 +463,10 @@ async function executeStep(step, context) {
       });
 
     case "loadMap":
-      await context.loadNamedMap(step.mapName, { deferBgm: !!step.deferBgm });
+      await context.loadNamedMap(step.mapName, {
+        deferBgm: !!step.deferBgm,
+        skipSave: !!step.skipSave, 
+      });
       if (step.spawn) {
         context.playerRef.current.x = step.spawn.x;
         context.playerRef.current.y = step.spawn.y;
@@ -515,8 +522,7 @@ async function executeStep(step, context) {
 
     case "endingNarration": {
       if (!context.ending) {
-        const flags = context.flags;
-
+        d
         context.ending = resolveEnding(context.flags);
         console.log([...context.flags].filter(f => f.startsWith("accused_")));
 

@@ -170,7 +170,7 @@ function TutorialHint({ anchorRef, anchorMobileRef, steps = [], onDismiss }) {
     window.addEventListener("resize", measure);
     return () => { cancelAnimationFrame(raf); window.removeEventListener("resize", measure); };
   }, [anchorRef, anchorMobileRef, index]);
-  
+
   function buildArrow() {
     if (!btnRect || !cardRect) return null;
 
@@ -338,6 +338,11 @@ export default function App() {
         console.log(`Player coordinates: x=${p.x}, y=${p.y}`);
         keysRef.current.delete('p');
       }
+      if (keysRef.current.has('r')) {
+        localStorage.removeItem("detective_save");
+        window.location.reload();
+        keysRef.current.clear();
+      }
     };
 
     const interval = setInterval(checkDebugKey, 100);
@@ -365,6 +370,13 @@ export default function App() {
   const objBtnRef = useRef(null);
   const mapBufferRef = useRef(null);
   const mapBufferInfoRef = useRef({ name: null, w: 0, h: 0 });
+  const autoSaveTimerRef = useRef(null);
+
+  function debouncedSave() {
+    if (dialogue) return;
+    clearTimeout(autoSaveTimerRef.current);
+    autoSaveTimerRef.current = setTimeout(saveGame, 1000);
+  }
   function drawTileWithFlips(ctx, info, dx, dy, dw, dh) {
     ctx.save();
     ctx.translate(dx + dw / 2, dy + dh / 2);
@@ -415,6 +427,46 @@ export default function App() {
 
     worldBufferRef.current = buf;
     worldBufferMetaRef.current = { mapName, w, h };
+  }
+  const NO_SAVE_MAPS = new Set(["office", "jail"]);
+  function saveGame() {
+    if (!currentMapNameRef.current) return;
+    if (NO_SAVE_MAPS.has(currentMapNameRef.current)) return;
+    const state = {
+      flags: [...GAME.flags],
+      clues: [...GAME.clues],
+      metadata: [...GAME.metadata.entries()],
+      claims: Object.fromEntries(
+        Object.entries(GAME.claims).map(([k, v]) => [k, [...v]])
+      ),
+      map: currentMapNameRef.current,
+      player: { x: playerRef.current.x, y: playerRef.current.y },
+      savedAt: Date.now(),
+    };
+    try {
+      localStorage.setItem("detective_save", JSON.stringify(state));
+    } catch (e) {
+      console.warn("Save failed:", e);
+    }
+  }
+
+  function loadSave() {
+    try {
+      const raw = localStorage.getItem("detective_save");
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  function applySaveToGame(save) {
+    GAME.flags = new Set(save.flags);
+    GAME.clues = new Set(save.clues);
+    GAME.metadata = new Map(save.metadata);
+    GAME.claims = Object.fromEntries(
+      Object.entries(save.claims).map(([k, v]) => [k, new Set(v)])
+    );
   }
   function toggleObjectives() {
     setObjectivesMinimized((v) => !v);
@@ -524,7 +576,28 @@ export default function App() {
     navigate("/");
   }
   useEffect(() => {
-    loadNamedMap("office").catch(console.error);
+    const save = loadSave();
+    if (save && save.map) {
+      applySaveToGame(save);
+      loadNamedMap(save.map).then(() => {
+        playerRef.current.x = save.player.x;
+        playerRef.current.y = save.player.y;
+        setObjectivesRefresh(n => n + 1);
+      }).catch(console.error);
+    } else {
+      playCutscene("intro_boot", {
+        loadNamedMap,
+        playerRef,
+        setTransitionMessage,
+        setDialogue,
+        npcs,
+        setNpcs,
+        DIALOGUE,
+        flags: GAME.flags,
+        GAME,
+        setFadeOverlay
+      });
+    }
   }, []);
   useEffect(() => {
     let cancelled = false;
@@ -643,6 +716,7 @@ export default function App() {
       GAME.metadata.set(set.metadataAdd.key, set.metadataAdd.value);
     }
     setObjectivesRefresh(prev => prev + 1);
+    debouncedSave();
   }
 
   const PROVOKE_TOKEN = "__PROVOKE__";
@@ -967,7 +1041,9 @@ export default function App() {
       !GAME.flags.has("marcus_comforts_bobby_bar");
     const comfortScene = GAME.flags.has("marcus_comforts_bobby_bar");
     const mayaActive = GAME.flags.has("poem_passed") && !GAME.flags.has("maya_scene_complete");
-
+    const lucasActive = GAME.flags.has("poem_passed") || GAME.flags.has("poem_failed");
+    const bobbyActive = GAME.flags.has("HasMetBobby");
+    
 
     if (name === "bar") {
       if (comfortScene) {
@@ -991,6 +1067,14 @@ export default function App() {
       }
       if (GAME.flags.has("lucas_maya_reject")) {
         spawnList = spawnList.filter(npc => npc.id !== "maya");
+      }
+    }
+    if (name === "pd") {
+      if (lucasActive) {
+        spawnList = spawnList.filter(npc => npc.id !== "lucas");
+      }
+       if (bobbyActive) {
+        spawnList = spawnList.filter(npc => npc.id !== "bobby")
       }
     }
 
@@ -1089,6 +1173,7 @@ export default function App() {
 
     currentMapNameRef.current = name;
     updateCamera();
+    if (GAME.flags.size > 0 && !options.skipSave) saveGame();
   }
 
 
@@ -1406,21 +1491,6 @@ export default function App() {
     if (!played) stopVoice();
 
   }, [dialogue, segmentIndex]);
-
-  useEffect(() => {
-    playCutscene("intro_boot", {
-      loadNamedMap,
-      playerRef,
-      setTransitionMessage,
-      setDialogue,
-      npcs,
-      setNpcs,
-      DIALOGUE,
-      flags: GAME.flags,
-      GAME,
-      setFadeOverlay
-    });
-  }, []);
 
   useEffect(() => {
     const dlg = dialogue ? DIALOGUE[dialogue.dlgId] : null;
@@ -1973,6 +2043,7 @@ export default function App() {
                 onActiveObjectives={setActiveObjectives}
                 btnRef={objBtnRef}
                 mobileBtnRef={objMobileBtnRef}
+                onSave={saveGame}
               />
               <div className="absolute pointer-events-none inset-0 z-50">
                 <MapButton

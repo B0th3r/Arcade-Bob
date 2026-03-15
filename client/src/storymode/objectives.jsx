@@ -15,7 +15,12 @@ const OBJECTIVES_CONFIG = {
     description: "Chat with Lucas, Bobby, and Jack & Alex",
     optional: true,
     startsActive: true,
-    completesWhen: { flagsAny: ['started_investigation'] },
+    completesWhen: {
+      conditions: [
+        { flagsAny: ['started_investigation'] },
+        { flagsAll: ["talkedToLucas", "talkedToBobby", "talkedToJackAlex"] },
+      ]
+    },
     waypoints: [
       { type: "npc", id: "lucas", hideWhenFlag: "talkedToLucas" },
       { type: "npc", id: "bobby", hideWhenFlag: "talkedToBobby" },
@@ -227,6 +232,7 @@ function ObjectivesPanel({
   defaultOpen = false,
   btnRef,
   mobileBtnRef,
+  onSave,
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -237,7 +243,13 @@ function ObjectivesPanel({
   const closeBtnRef = useRef(null);
   const panelVisible = useMounted();
   const dotBlink = useBlink(900);
+  const [saveFlash, setSaveFlash] = useState(false);
 
+  function handleManualSave() {
+    onSave?.();
+    setSaveFlash(true);
+    setTimeout(() => setSaveFlash(false), 2000);
+  }
   useEffect(() => {
     if (typeof isMinimized === "boolean") setOpen(!isMinimized);
   }, [isMinimized]);
@@ -281,14 +293,26 @@ function ObjectivesPanel({
   function checkObjectiveComplete(objective, state) {
     const cond = objective.completesWhen;
     if (!cond) return false;
+
+    if (cond.conditions) {
+      return cond.conditions.some(c => checkCondition(c, state));
+    }
+
+    return checkCondition(cond, state);
+  }
+
+  function checkCondition(cond, state) {
     if (cond.flagsAll && !cond.flagsAll.every((f) => state.flags.has(f))) return false;
     if (cond.flagsAny && !cond.flagsAny.some((f) => state.flags.has(f))) return false;
     if (cond.cluesAll && !cond.cluesAll.every((c) => state.clues.has(c))) return false;
     if (cond.cluesAny && !cond.cluesAny.some((c) => state.clues.has(c))) return false;
-    if (cond.metadataAll) { for (const [k, v] of Object.entries(cond.metadataAll)) { if (state.metadata.get(k) !== v) return false; } }
+    if (cond.metadataAll) {
+      for (const [k, v] of Object.entries(cond.metadataAll)) {
+        if (state.metadata.get(k) !== v) return false;
+      }
+    }
     return true;
   }
-
   const requiredCount = activeObjectives.filter(o => !o.optional).length;
   const optionalCount = activeObjectives.filter(o => o.optional).length;
 
@@ -483,8 +507,25 @@ function ObjectivesPanel({
 
                 {/* Footer note */}
                 <div style={{ marginTop: 14, paddingTop: 10, borderTop: "1px solid rgba(100,78,38,0.15)", fontFamily: "'Courier Prime', monospace", fontSize: 9, color: "rgba(90,70,38,0.5)", letterSpacing: "0.12em", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <span style={{ fontStyle: "italic" }}>Press <span style={{ color: "rgba(150,118,55,0.65)", fontStyle: "normal" }}>ESC</span> to close</span>
-                  <span style={{ opacity: 0.6 }}>— CONFIDENTIAL —</span>
+                  <span style={{ fontStyle: "italic" }}>
+                    Press <span style={{ color: "rgba(150,118,55,0.65)", fontStyle: "normal" }}>ESC</span> to close
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleManualSave}
+                    style={{
+                      border: `1px solid ${saveFlash ? "rgba(100,160,80,0.5)" : "rgba(216, 212, 204, 0.3)"}`,
+                      cursor: "pointer",
+                      padding: "3px 8px",
+                      fontFamily: "'Courier Prime', monospace",
+                      fontSize: 9,
+                      letterSpacing: "0.12em",
+                      color: saveFlash ? "rgba(120,200,90,0.8)" : "rgba(203, 201, 197, 0.5)",
+                      transition: "color 0.3s ease, border-color 0.3s ease",
+                    }}
+                  >
+                    {saveFlash ? "SAVED ✓" : "SAVE GAME"}
+                  </button>
                 </div>
               </div>
             </div>

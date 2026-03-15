@@ -302,6 +302,7 @@ export default function App() {
   const mapBufferRef = useRef(null);
   const mapBufferInfoRef = useRef({ name: null, w: 0, h: 0 });
   const autoSaveTimerRef = useRef(null);
+  const bgCanvasRef = useRef(null);
 
   function debouncedSave() {
     if (dialogue) return;
@@ -1931,8 +1932,36 @@ export default function App() {
   const width = effCols * tileW * renderScale;
   const height = effRows * tileH * renderScale;
 
+  useEffect(() => {
+    const bg = bgCanvasRef.current;
+    const world = worldBufferRef.current;
+    if (!bg || !world) return;
+    const ctx = bg.getContext("2d");
+    bg.width  = window.innerWidth;
+    bg.height = window.innerHeight;
+    ctx.fillStyle = "#0a0806";
+    ctx.fillRect(0, 0, bg.width, bg.height);
+    ctx.drawImage(world, 0, 0, bg.width, bg.height);
+  }, [map]);
+
   return (
-    <div className="fixed inset-0 bg-slate-950 text-slate-100 overflow-hidden">
+    <div className="fixed inset-0 text-slate-100 overflow-hidden">
+      <canvas
+        ref={bgCanvasRef}
+        style={{
+          position: "absolute", inset: 0,
+          width: "100%", height: "100%",
+          filter: "blur(14px) brightness(0.28) saturate(1.6)",
+          transform: "scale(1.06)",
+          transformOrigin: "center",
+          zIndex: 0,
+        }}
+      />
+      <div style={{
+        position: "absolute", inset: 0, zIndex: 1,
+        background: "radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.75) 100%)",
+        pointerEvents: "none",
+      }} />
       <TopObjectiveBanner objective={activeObjectives?.[0]} />
       <div
         ref={viewportRef}
@@ -1941,11 +1970,12 @@ export default function App() {
           paddingTop: isShortHeight
             ? "env(safe-area-inset-top)"
             : "calc(3.25rem + env(safe-area-inset-top))",
+          zIndex: 2,
         }}
       >
         <div className="w-full h-full grid place-items-center">
           <div className="relative">
-            <div className="rounded-2xl shadow-xl ring-1 ring-white/10 overflow-hidden bg-slate-900 relative">
+            <div className="rounded-2xl shadow-xl ring-1 ring-white/10 overflow-hidden relative">
               <canvas
                 ref={canvasRef}
                 width={width}

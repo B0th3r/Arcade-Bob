@@ -108,7 +108,7 @@ function MobileControls({ onPress, onRelease, show = true }) {
   });
 
   const btn =
-    "min-w-12 h-12 rounded-xl bg-slate-800/70 ring-1 ring-white/15 backdrop-blur text-slate-100 text-lg flex items-center justify-center select-none";
+    "min-w-12 h-12 rounded-xl bg-[rgba(28,21,7,0.7)] ring-1 ring-white/15 backdrop-blur text-[rgba(200,168,74)] text-lg flex items-center justify-center select-none";
 
   return (
     <div className="absolute inset-0 pointer-events-none lg:hidden">
@@ -1208,14 +1208,14 @@ export default function App() {
           aria-label="Open map"
           className={[
             "pointer-events-auto absolute flex items-center justify-center",
-            "rounded-full bg-slate-900/90 backdrop-blur ring-1 ring-white/10 shadow-lg",
+            "rounded-full bg-[rgba(28,21,7,0.8)] backdrop-blur ring-1 ring-white/10 shadow-lg",
             "hover:bg-slate-800/90 active:scale-[0.98] transition",
             isTouch
               ? "top-3 right-3 h-11 w-11"
               : "bottom-4 right-44 gap-2 px-3 py-2"
           ].join(" ")}
         >
-          <MapIcon className="w-5 h-5 text-sky-400" />
+         <MapIcon className="w-5 h-5 text-[rgba(200,168,74,0.9)]" />
           {!isTouch && (
             <>
               <span className="text-sm font-medium text-slate-100">Map</span>

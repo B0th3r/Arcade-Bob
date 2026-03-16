@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../lib/SocketProvider.jsx";
-import OverlayIntro from "../components/OverlayIntro.jsx";
 import { RefreshCw, LogIn, Plus, Search, Users, Loader2, PlugZap, Lock, Globe, Dice5 } from "lucide-react";
+import { stopBgm } from "../storymode/environment/audioManager.js";
 
 export default function RoomEntry() {
     const { socket, conn } = useSocket();
@@ -10,7 +10,6 @@ export default function RoomEntry() {
     const [tab, setTab] = useState("browse");
     const [roomId, setRoomId] = useState("test-room");
     const [name, setName] = useState(localStorage.getItem("GamerTag") || "");
-    const [showIntro, setShowIntro] = useState(false);
 
     const [rooms, setRooms] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -20,13 +19,8 @@ export default function RoomEntry() {
     const [refreshTick, setRefreshTick] = useState(0);
 
     useEffect(() => {
-        const seen = sessionStorage.getItem("introSeen");
-        if (!seen) setShowIntro(true);
+        stopBgm();
     }, []);
-    const handleIntroFinish = () => {
-        sessionStorage.setItem("introSeen", "1");
-        setShowIntro(false);
-    };
 
     useEffect(() => {
         const trimmed = name.trim();
@@ -130,10 +124,6 @@ export default function RoomEntry() {
                 className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(16,185,129,0.08),transparent_60%),radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.06),transparent_60%)]"
             />
             <div className="flex items-center justify-center p-4">
-                {showIntro && (
-                    <OverlayIntro onFinish={handleIntroFinish} message="Welcome to the Bother Arcade" />
-                )}
-
                 <div className="max-w-3xl space-y-6 p-6 sm:p-8 rounded-2xl border border-emerald-500/30 bg-black/50 shadow-[0_0_0_1px_rgba(16,185,129,0.08)_inset,0_10px_40px_-12px_rgba(16,185,129,0.15)] backdrop-blur">
                     {/* Header */}
                     <div className="flex items-start justify-between gap-4">
@@ -168,6 +158,7 @@ export default function RoomEntry() {
                     <div className="flex items-center gap-2 border-b border-emerald-800/30 pb-2">
                         <TabButton active={tab === "browse"} onClick={() => setTab("browse")}>Browse Lobbies</TabButton>
                         <TabButton active={tab === "create"} onClick={() => setTab("create")}>Create Lobby</TabButton>
+                        <TabButton onClick={() => navigate("/")}>Back </TabButton>
                         {tab === "browse" && (
                             <div className="ml-auto flex items-center gap-2">
                                 <button
@@ -305,8 +296,8 @@ function TabButton({ active, onClick, children }) {
     return (
         <button
             className={`relative px-3 py-1.5 text-sm rounded border transition-colors ${active
-                    ? "border-emerald-500 text-emerald-300"
-                    : "border-emerald-700/40 text-emerald-400/80 hover:text-emerald-300 hover:border-emerald-500/60"
+                ? "border-emerald-500 text-emerald-300"
+                : "border-emerald-700/40 text-emerald-400/80 hover:text-emerald-300 hover:border-emerald-500/60"
                 }`}
             onClick={onClick}
         >
@@ -320,8 +311,8 @@ function FilterChip({ active, onClick, children }) {
     return (
         <button
             className={`px-2.5 py-1 text-xs rounded-full border ${active
-                    ? "border-emerald-500 text-emerald-300 bg-emerald-500/10"
-                    : "border-emerald-700/40 text-emerald-400/80 hover:text-emerald-300 hover:border-emerald-500/60"
+                ? "border-emerald-500 text-emerald-300 bg-emerald-500/10"
+                : "border-emerald-700/40 text-emerald-400/80 hover:text-emerald-300 hover:border-emerald-500/60"
                 }`}
             onClick={onClick}
         >

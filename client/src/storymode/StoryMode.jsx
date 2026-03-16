@@ -611,8 +611,9 @@ export default function App() {
             anchorRef: objBtnRef,
             anchorMobileRef: objMobileBtnRef,
             steps: [
-              "Press O to open your Case Notes.",
-              "Active leads are listed here — check back as you uncover new information.",
+              "Press O or click here to open your Case Notes.",
+              "All active objectives appear here — check back as you progress.",
+              "You can also save your progress to continue later.",
             ]
           });
         }
@@ -695,8 +696,9 @@ export default function App() {
               anchorRef: objBtnRef,
               anchorMobileRef: objMobileBtnRef,
               steps: [
-                "Press O to open your Case Notes.",
-                "Active leads are listed here — check back as you uncover new information.",
+                "Press O or click here to open your Case Notes.",
+                "All active objectives appear here — check back as you progress.",
+                "You can also save your progress to continue later.",
               ]
             });
           }
@@ -975,7 +977,7 @@ export default function App() {
     const mayaActive = GAME.flags.has("poem_passed") && !GAME.flags.has("maya_scene_complete");
     const lucasActive = GAME.flags.has("poem_passed") || GAME.flags.has("poem_failed");
     const bobbyActive = GAME.flags.has("HasMetBobby");
-    
+
 
     if (name === "bar") {
       if (comfortScene) {
@@ -1005,7 +1007,7 @@ export default function App() {
       if (lucasActive) {
         spawnList = spawnList.filter(npc => npc.id !== "lucas");
       }
-       if (bobbyActive) {
+      if (bobbyActive) {
         spawnList = spawnList.filter(npc => npc.id !== "bobby")
       }
     }
@@ -1147,7 +1149,7 @@ export default function App() {
               : "bottom-4 right-44 gap-2 px-3 py-2"
           ].join(" ")}
         >
-         <MapIcon className="w-5 h-5 text-[rgba(200,168,74,0.9)]" />
+          <MapIcon className="w-5 h-5 text-[rgba(200,168,74,0.9)]" />
           {!isTouch && (
             <>
               <span className="text-sm font-medium text-slate-100">Map</span>
@@ -1399,8 +1401,9 @@ export default function App() {
                   anchorRef: objBtnRef,
                   anchorMobileRef: objMobileBtnRef,
                   steps: [
-                    "Press O to open your Case Notes.",
-                    "Active leads are listed here — check back as you uncover new information.",
+                    "Press O or click here to open your Case Notes.",
+                    "All active objectives appear here — check back as you progress.",
+                    "You can also save your progress to continue later.",
                   ]
                 });
               }
@@ -1937,7 +1940,7 @@ export default function App() {
     const world = worldBufferRef.current;
     if (!bg || !world) return;
     const ctx = bg.getContext("2d");
-    bg.width  = window.innerWidth;
+    bg.width = window.innerWidth;
     bg.height = window.innerHeight;
     ctx.fillStyle = "#0a0806";
     ctx.fillRect(0, 0, bg.width, bg.height);

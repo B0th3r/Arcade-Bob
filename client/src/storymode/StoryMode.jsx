@@ -54,13 +54,19 @@ function useKeyboard() {
     };
 
     const up = (e) => keysRef.current.delete(e.key.toLowerCase());
+    const blur = () => keysRef.current.clear();
 
     window.addEventListener("keydown", down, { passive: false });
     window.addEventListener("keyup", up);
+    window.addEventListener("blur", blur);
+    window.addEventListener("mousedown", blur);
+    window.addEventListener("mousedown", blur); 
 
     return () => {
       window.removeEventListener("keydown", down);
       window.removeEventListener("keyup", up);
+      window.removeEventListener("blur", blur);
+      window.removeEventListener("mousedown", blur);
     };
   }, []);
 
@@ -269,7 +275,7 @@ export default function App() {
         console.log(`Player coordinates: x=${p.x}, y=${p.y}`);
         keysRef.current.delete('p');
       }
-      
+
       if (keysRef.current.has('r')) {
         localStorage.removeItem("detective_save");
         window.location.reload();

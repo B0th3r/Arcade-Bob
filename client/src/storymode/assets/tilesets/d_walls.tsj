@@ -1,0 +1,14 @@
+{ "columns":24,
+ "image":"..\/sprites\/room_builder_d.png",
+ "imageheight":944,
+ "imagewidth":384,
+ "margin":0,
+ "name":"3d_walls",
+ "spacing":0,
+ "tilecount":1416,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

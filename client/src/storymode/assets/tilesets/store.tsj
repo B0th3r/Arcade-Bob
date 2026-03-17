@@ -1,0 +1,14 @@
+{ "columns":16,
+ "image":"..\/sprites\/store.png",
+ "imageheight":1248,
+ "imagewidth":256,
+ "margin":0,
+ "name":"store",
+ "spacing":0,
+ "tilecount":1248,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

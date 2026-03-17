@@ -1,0 +1,14 @@
+{ "columns":32,
+ "image":"..\/sprites\/room_builder_walls.png",
+ "imageheight":640,
+ "imagewidth":512,
+ "margin":0,
+ "name":"bar_walls",
+ "spacing":0,
+ "tilecount":1280,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

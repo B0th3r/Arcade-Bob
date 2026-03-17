@@ -1,0 +1,14 @@
+{ "columns":4,
+ "image":"..\/sprites\/npcs\/bartender\/sheet.png",
+ "imageheight":96,
+ "imagewidth":64,
+ "margin":0,
+ "name":"bartender",
+ "spacing":0,
+ "tilecount":24,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

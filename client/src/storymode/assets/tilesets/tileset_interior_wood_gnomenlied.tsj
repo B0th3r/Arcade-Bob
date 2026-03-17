@@ -1,0 +1,14 @@
+{ "columns":34,
+ "image":"..\/sprites\/tileset_interior_wood_gnomenlied.png",
+ "imageheight":480,
+ "imagewidth":544,
+ "margin":0,
+ "name":"Tileset_Interior Wood_Gnomenlied",
+ "spacing":0,
+ "tilecount":1020,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

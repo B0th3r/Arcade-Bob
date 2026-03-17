@@ -1,0 +1,14 @@
+{ "columns":16,
+ "image":"..\/sprites\/6_Music_and_sport.png",
+ "imageheight":928,
+ "imagewidth":256,
+ "margin":0,
+ "name":"6_Music_and_sport",
+ "spacing":0,
+ "tilecount":928,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}

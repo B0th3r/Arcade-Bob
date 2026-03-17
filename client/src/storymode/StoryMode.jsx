@@ -60,7 +60,7 @@ function useKeyboard() {
     window.addEventListener("keyup", up);
     window.addEventListener("blur", blur);
     window.addEventListener("mousedown", blur);
-    window.addEventListener("mousedown", blur); 
+    window.addEventListener("mousedown", blur);
 
     return () => {
       window.removeEventListener("keydown", down);
@@ -957,7 +957,7 @@ export default function App() {
         let npcToStart = null;
         if (GAME.flags.has("poem_passed") && !GAME.flags.has("maya_scene_complete")) {
           npcToStart = def.npcs.find((n) => n.id === "maya");
-        } else if ((GAME.flags.has("BobbyDirty") || GAME.flags.has("BobbyGood")) && !GAME.flags.has("marcus_comforts_bobby_bar")) {
+        } else if ((GAME.flags.has("BobbyDirty") && !GAME.flags.has("marcus_sent_away") || GAME.flags.has("BobbyGood")) && !GAME.flags.has("marcus_comforts_bobby_bar")) {
           npcToStart = def.npcs.find((n) => n.id === "marcus");
         }
 
@@ -973,42 +973,25 @@ export default function App() {
     }
     let spawnList = [...(def.npcs ?? [])];
 
+    const marcusActive =
+      (GAME.flags.has("BobbyDirty") && !GAME.flags.has("marcus_sent_away") || GAME.flags.has("BobbyGood")) &&
+      !GAME.flags.has("marcus_comforts_bobby_bar");
     const movedToBar = GAME.flags.has("bobby_investigation_bar");
     const johnTimActive = GAME.flags.has("talkedToJane");
     const lostManActive = GAME.flags.has("mislead_lost_man") || GAME.flags.has("helped_lost_man");
     const sneakActive = GAME.flags.has("found_sneak") || GAME.flags.has("sneak_end");
-    const marcusActive =
-      (GAME.flags.has("BobbyDirty") || GAME.flags.has("BobbyGood")) &&
-      !GAME.flags.has("marcus_comforts_bobby_bar");
     const comfortScene = GAME.flags.has("marcus_comforts_bobby_bar");
     const mayaActive = GAME.flags.has("poem_passed") && !GAME.flags.has("maya_scene_complete");
     const lucasActive = GAME.flags.has("poem_passed") || GAME.flags.has("poem_failed");
     const bobbyActive = GAME.flags.has("HasMetBobby");
+    const timActive = !GAME.flags.has("tim_left");
 
 
     if (name === "bar") {
-      if (comfortScene) {
-
-        spawnList = spawnList.filter(n => n.id !== "marcus" && n.id !== "bobby");
-
-        spawnList.push(
-          {
-            id: "marcus",
-            x: 9, y: 14,
-            gid: 1109,
-            dialogueId: "marcusBar",
-          },
-          {
-            id: "bobby",
-            x: 9, y: 15,
-            gid: 3586,
-            dialogueId: "marcusBar",
-          }
-        );
-      }
       if (GAME.flags.has("lucas_maya_reject")) {
         spawnList = spawnList.filter(npc => npc.id !== "maya");
       }
+     
     }
     if (name === "pd") {
       if (lucasActive) {
@@ -1055,9 +1038,12 @@ export default function App() {
       spawnList = spawnList.filter(n => n.id !== "john" && n.id !== "tim");
 
       spawnList.push(
-        { id: "johnArgue", name: "John", x: 32, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "john", direction: "right", },
-        { id: "timArgue", name: "Tim", x: 33, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "tim", direction: "left", }
-      );
+        { id: "johnArgue", name: "John", x: 32, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "john", direction: "right", });
+
+      if (timActive) {
+        spawnList.push(
+          { id: "timArgue", name: "Tim", x: 33, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "tim", direction: "left", });
+      }
     }
     if (johnTimActive && name == "johnsHouse") {
       spawnList = spawnList.filter(npc => npc.id !== "john");
@@ -1071,12 +1057,31 @@ export default function App() {
         spawnList = spawnList.filter(n => n.id !== "bobby");
         spawnList.push({
           id: "bobby",
-          x: 8,
+          x: 7,
           y: 10,
-          gid: 3586,
+          gid: 106,
           dialogueId: "bobbyBartender",
           direction: "up",
         });
+        if (comfortScene) {
+          spawnList = spawnList.filter(n => n.id !== "bobby"  && n.id !== "marcus" );
+          spawnList.push({
+            id: "bobby",
+            x: 9,
+            y: 11,
+            gid: 3586,
+            dialogueId: "marcusBar",
+            direction: "right",
+          },
+            {
+              id: "marcus",
+              x: 11,
+              y: 11,
+              gid: 3586,
+              dialogueId: "marcusBar",
+              direction: "left",
+            });
+        }
       }
 
       if (name === "neighborhood") {

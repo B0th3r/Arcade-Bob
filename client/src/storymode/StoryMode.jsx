@@ -208,8 +208,8 @@ function TutorialHint({ anchorRef, anchorMobileRef, steps = [], onDismiss }) {
     </div>
   );
 }
-function createNpc({ id, name, x, y, gid, dialogueId, spriteId, direction = "down", }) {
-  return { id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, cooldownMs: 400, _lastTalkAt: 0, };
+function createNpc({ id, name, x, y, gid, dialogueId, spriteId, direction = "down", staticDirection = false }) {
+  return { id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, staticDirection, cooldownMs: 400, _lastTalkAt: 0, };
 }
 function getFacingToward(fromX, fromY, toX, toY) {
   const dx = toX - fromX;
@@ -269,6 +269,7 @@ export default function App() {
         console.log(`Player coordinates: x=${p.x}, y=${p.y}`);
         keysRef.current.delete('p');
       }
+      
       if (keysRef.current.has('r')) {
         localStorage.removeItem("detective_save");
         window.location.reload();
@@ -1096,6 +1097,7 @@ export default function App() {
         spriteId: n.spriteId,
         dialogueId: n.dialogueId,
         direction: n.direction ?? "down",
+        staticDirection: n.staticDirection
       })
     );
     await loadNpcImages(npcObjs);
@@ -1483,7 +1485,7 @@ export default function App() {
 
           setNpcs(prev =>
             prev.map(n =>
-              n.id === npc.id ? { ...n, direction: facing, _lastTalkAt: now } : n
+              n.id === npc.id && !npc.staticDirection ? { ...n, direction: facing, _lastTalkAt: now } : n
             )
           );
 
@@ -2061,13 +2063,15 @@ export default function App() {
 
                     <div className="space-y-5 max-h-[65vh] overflow-auto px-2">
                       {(creditsOverlay.credits?.sections ?? []).map((sec, i) => (
-                        <div key={i}>
-                          <div className="font-semibold mb-2">{sec.heading}</div>
-                          <div className="text-sm opacity-90 space-y-1">
-                            {sec.lines.map((line, j) => (
-                              <div key={j}>{line}</div>
-                            ))}
-                          </div>
+                        <div className="text-sm opacity-90 space-y-2">
+                          {sec.lines.map((line, j) => (
+                            <div key={j}>
+                              <div>{typeof line === "string" ? line : line.main}</div>
+                              {typeof line !== "string" && line.sub && (
+                                <div className="text-xs opacity-70 ml-3">{line.sub}</div>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       ))}
 

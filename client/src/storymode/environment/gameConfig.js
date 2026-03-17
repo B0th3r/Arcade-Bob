@@ -4,6 +4,7 @@ const Bar_TMJ = new URL('../assets/maps/bar.tmj', import.meta.url).href;
 const JimDonnasHouse_TMJ = new URL('../assets/maps/jim_donnas_House.tmj', import.meta.url).href;
 const JohnsHouse_TMJ = new URL('../assets/maps/johns_house.tmj', import.meta.url).href;
 const Office_TMJ = new URL('../assets/maps/office.tmj', import.meta.url).href;
+const Jail_TMJ = new URL('../assets/maps/jail.tmj', import.meta.url).href;
 const PD_TMJ = new URL('../assets/maps/pd.tmj', import.meta.url).href;
 const Shop_TMJ = new URL('../assets/maps/flower_shop.tmj', import.meta.url).href;
 const PLAYER_PNG = new URL('../assets/sprites/npcs/player/sheet.png', import.meta.url).href;
@@ -18,6 +19,15 @@ export const GAME = {
 export const MAPS = {
   office: {
     path: Office_TMJ,
+    start: { x: 20, y: 5 },
+    npcs: [
+    ],
+    exits: [
+      { x: 0, y: 10, to: "pd", toStart: { x: 18, y: 4 } },
+    ],
+  },
+  jail: {
+    path: Jail_TMJ,
     start: { x: 20, y: 5 },
     npcs: [
     ],
@@ -47,10 +57,10 @@ export const MAPS = {
     { id: "gambler", x: 1, y: 20, gid: 3586, dialogueId: "gambler", direction: "right" },
     { id: "bar_npc1", x: 18, y: 12, gid: 3586, direction: "right" },
     { id: "bar_npc2", x: 20, y: 12, gid: 3586, direction: "left" },
-    { id: "bar_npc3", x: 3, y: 25, gid: 3586},
-    { id: "bar_npc4", x: 23, y: 25, gid: 3586, direction: "left"},
-    { id: "bar_npc5", x: 3, y: 10, gid: 3586, direction: "up"},
-    { id: "bar_npc6", x: 9, y: 6, gid: 3586, direction: "left"},
+    { id: "bar_npc3", x: 3, y: 25, gid: 3586 },
+    { id: "bar_npc4", x: 23, y: 25, gid: 3586, direction: "left" },
+    { id: "bar_npc5", x: 3, y: 10, gid: 3586, direction: "up" },
+    { id: "bar_npc6", x: 9, y: 6, gid: 3586, direction: "left" },
     { id: "maya", x: 26, y: 22, gid: 3586, dialogueId: "mayaBar" },
     ],
     bgm: "bar",
@@ -79,7 +89,7 @@ export const MAPS = {
     npcs: [
       { id: "lucasCity", x: 39, y: 8, gid: 106, dialogueId: "lucasCity", spriteId: "lucas" },
       { id: "lost_man", x: 29, y: 8, gid: 106, dialogueId: "lost_man", spriteId: "lost_man" },
-      { id: "frank", x: 1, y: 14, gid: 106, dialogueId: "frank", direction: "right"},
+      { id: "frank", x: 1, y: 14, gid: 106, dialogueId: "frank", direction: "right" },
       { id: "bobbyCity", x: 10, y: 25, gid: 106, dialogueId: "bobby", spriteId: "bobby", direction: "right" },
       { id: "delivery_girl", x: 12, y: 25, gid: 106, dialogueId: "bobby", direction: "left" },
       { id: "marcus", gid: 106, dialogueId: "marcus" },
@@ -95,10 +105,10 @@ export const MAPS = {
   },
   neighborhood: {
     path: Neighborhood_TMJ,
-    start: { x: 5, y: 70 },
+    start: { x: 40, y: 70 },
     npcs: [
       { id: "hayes", x: 43, y: 67, gid: 437, dialogueId: "hayes", direction: "right" },
-      { id: "sneak", x: 4, y: 70, gid: 437, dialogueId: "sneak" },
+      { id: "sneak", x: 4, y: 70, gid: 437, dialogueId: "sneak", direction: "down", staticDirection: true },
       { id: "tim", x: 34, y: 41, gid: 451, dialogueId: "tim" },
       { id: "sam", x: 21, y: 28, gid: 438, dialogueId: "sam" },
     ],
@@ -107,7 +117,10 @@ export const MAPS = {
       { x: 7, y: 25, to: "johnsHouse", toStart: { x: 1, y: 20 } },
       { x: 33, y: 0, to: "city", toStart: { x: 4, y: 26 } },
     ],
-    bgm: "neighborhood",
+    bgm: (game) => {
+      if (game.flags.has("talkedToJane")) return "neighborhood_02";
+      return "neighborhood";
+    },
   },
   jimDonnasHouse: {
     path: JimDonnasHouse_TMJ,
@@ -118,7 +131,10 @@ export const MAPS = {
     exits: [
       { x: 6, y: 21, to: "neighborhood", toStart: { x: 14, y: 39 } },
     ],
-    bgm: "neighborhood",
+    bgm: (game) => {
+      if (game.flags.has("talkedToJane")) return "neighborhood_02";
+      return "neighborhood";
+    },
   },
   johnsHouse: {
     path: JohnsHouse_TMJ,
@@ -127,7 +143,10 @@ export const MAPS = {
     exits: [
       { x: 1, y: 20, to: "neighborhood", toStart: { x: 15, y: 24 } },
     ],
-    bgm: "neighborhood",
+    bgm: (game) => {
+      if (game.flags.has("talkedToJane")) return "neighborhood_02";
+      return "neighborhood";
+    },
   },
 };
 

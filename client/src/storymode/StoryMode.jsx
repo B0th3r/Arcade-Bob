@@ -344,6 +344,8 @@ export default function App() {
     const interval = setInterval(checkDebugKey, 100);
     return () => clearInterval(interval);
   }, []);
+  useEffect(() => { mapOpenRef.current = mapOpen; }, [mapOpen]);
+  useEffect(() => { tutorialActiveRef.current = !!activeTutorial; }, [activeTutorial]);
   useEffect(() => {
     const onKey = (e) => {
       if (e.key.toLowerCase() === "m") setMapOpen(v => !v);
@@ -368,7 +370,8 @@ export default function App() {
   const mapBufferInfoRef = useRef({ name: null, w: 0, h: 0 });
   const autoSaveTimerRef = useRef(null);
   const bgCanvasRef = useRef(null);
-
+  const mapOpenRef = useRef(false);
+  const tutorialActiveRef = useRef(false);
   function debouncedSave() {
     if (dialogue) return;
     clearTimeout(autoSaveTimerRef.current);
@@ -1254,15 +1257,15 @@ export default function App() {
         style={{ top: "calc(env(safe-area-inset-top) + 0.5rem)" }}
       >
         <div className="mx-auto w-fit max-w-[92vw]">
-          <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-slate-900/90 backdrop-blur px-4 py-2 ring-1 ring-white/10 shadow-lg">
+          <div className="pointer-events-auto flex items-center gap-2 rounded-full bg-brown-900/90 backdrop-blur px-4 py-2 ring-1 ring-white/10 shadow-lg">
             <span className="text-xs uppercase tracking-wide text-emerald-300/90">
               Objective
             </span>
-            <span className="text-sm text-slate-100 font-medium truncate">
+            <span className="text-sm text-[rgba(200,168,74,0.9)] font-medium truncate">
               {objective.title}
             </span>
             {objective.optional ? (
-              <span className="text-[10px] uppercase tracking-wide text-amber-300/90">
+              <span className="text-[10px] uppercase tracking-wide text-[rgba(200,168,74,0.9)]">
                 Optional
               </span>
             ) : null}
@@ -1356,8 +1359,7 @@ export default function App() {
   function handleMovement(now) {
     const anim = animRef.current;
 
-    if (dialogue || presenting || activeTutorial) {
-      anim.state = "idle";
+   if (dialogue || presenting || mapOpenRef.current || tutorialActiveRef.current){
       return;
     }
 

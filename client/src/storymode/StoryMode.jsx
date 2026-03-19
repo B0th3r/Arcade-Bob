@@ -348,11 +348,11 @@ export default function App() {
   useEffect(() => { tutorialActiveRef.current = !!activeTutorial; }, [activeTutorial]);
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key.toLowerCase() === "m") setMapOpen(v => !v);
+      if (e.key.toLowerCase() === "m" && showMapButton) setMapOpen(v => !v);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [showMapButton]);
   const viewportRef = useRef(null);
   const [viewportPx, setViewportPx] = useState({ w: 0, h: 0 });
   const [isShortHeight, setIsShortHeight] = useState(false);

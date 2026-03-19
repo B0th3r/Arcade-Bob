@@ -1,51 +1,54 @@
-import { resolveEnding } from "./endingResolver";
+const ENDINGS = [
+  {
+    id: "redemption",
+    flag: "john_breaking",
+    title: "Redemption",
+    description: "You uncovered the truth and won back your reputation",
+  },
+  {
+    id: "marcus",
+    flag: "mixed_end",
+    title: "The Marcus Ending",
+    description: "You messed up a simple case and now Marcus owns you.",
+  },
+  {
+    id: "fired",
+    flag: "bad_end",
+    title: "Fired",
+    description: "The Lieutenant had seen enough.  You are fired.",
+  },
+  {
+    id: "arrested",
+    flag: "marcus_caught",
+    title: "Arrested",
+    description: "Marcus put it all together. You and Bobby both paid the price.",
+  },
+];
 
-function buildNarrationLines(ending) {
-  const lines = [];
+const ENDINGS_SAVE_KEY = "detective_endings";
 
-  lines.push("CASE SUMMARY");
-
-  lines.push(
-    ending.accused && ending.accused !== "unknown"
-      ? `Suspect accused: ${ending.accused}.`
-      : "No suspect was accused."
-  );
-
-  // Main ending result
-  switch (ending.endingId) {
-    case "ending_failed":
-      lines.push("The investigation failed.");
-      break;
-
-    case "ending_arrested":
-      lines.push("Internal Affairs arrested you and Bobby.");
-      break;
-
-    case "ending_good":
-      lines.push("The gambling den was shut down.");
-      break;
-
-    case "ending_evil_clean":
-      lines.push("Bobby took the blame. You avoided consequences.");
-      break;
-
-    case "ending_evil":
-      lines.push("Evidence was manipulated. The truth stayed hidden.");
-      break;
-
-    default:
-      lines.push("The case ended.");
+function getSeenEndings() {
+  try {
+    const raw = localStorage.getItem(ENDINGS_SAVE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
   }
+}
 
-  if (Array.isArray(ending.addendum)) {
-    for (const a of ending.addendum) {
-      lines.push(a.replace("Addendum — ", ""));
-    }
+function saveSeenEnding(id) {
+  try {
+    const seen = getSeenEndings();
+    seen.add(id);
+    localStorage.setItem(ENDINGS_SAVE_KEY, JSON.stringify([...seen]));
+  } catch { }
+}
+
+function detectEnding(flags) {
+  for (const ending of ENDINGS) {
+    if (flags.has(ending.flag)) return ending;
   }
-
-  lines.push("END.");
-
-  return lines;
+  return null;
 }
 
 const DEFAULT_CREDITS = {
@@ -53,9 +56,26 @@ const DEFAULT_CREDITS = {
   sections: [
     { heading: "Developer", lines: ["Keshawn Bryant"] },
     {
-      heading: "Voice Cast", lines: ["Ace — Keshawn", "Alex — Henry", "Bartender — Keshawn", "Bobby — Michael", "Delivery Girl — Saisindhu", "Donna — Riana",
-        "Florist — Anonymous", "Flower Promoter — Anonymous", "Gambler — Jaime", "Hayes — Garnett", "Jack — Keshawn",
-        "Jane — Kiona", "Jim — Keshawn", "John — Henry", "Lieutenant — Robbie", "Lucas — Marcus", "Marcus — Eli", "Maya — Michaela", "Sam — Jewelean", "Tim — Daniel"]
+      heading: "Voice Cast", lines: ["Ace — Tailb", "Alex — Henry", "Angry Patron — Kelly", "Bartender — Keshawn", "Bobby — Michael", "Delivery Girl — Saisindhu", "Donna — Riana",
+        "Florist — Anonymous", "Flower Promoter — Anonymous", "Frank — Kelly", "Gambler — Jaime", "Happy Patron — Jennifer", "Hayes — Garnett", "Jack — Keshawn",
+        "Jane — Kiona", "Jenny — Jennifer", "Jim — Keshawn", "John — Henry", "Lieutenant — Robbie", "Lost Man — Dejuan", "Lucas — Marcus", "Marcus — Eli", "Maya — Michaela", "Sam — Jewelean", "Tim — Daniel"]
+    },
+    {
+      heading: "Music",
+      lines: [
+        "Main Menu Theme — T-Yang",
+        "Neighborhood Themes — Holizna",
+        "Bar Theme — Holizna",
+        "City Theme — Holizna",
+        {
+          main: "Police Department Theme — Paweł Feszczuk",
+          sub: "Modified from original • CC BY 4.0"
+        },
+        {
+          main: "Flower Shop Theme — Ketsa",
+          sub: "Modified from original • CC BY 4.0"
+        },
+      ]
     },
     { heading: "Tilesets", lines: ["35 Character Pixel Art / yigitkinis", "Farm RPG 16x16 Tileset / Emanuelle", "Pixel Cyberpunk Interior / DyLESTorm", "City Pack / NYKNCK", "Village Building Interior Tileset / ay boy", "Pixel Lands Village / Trislin"] },
   ],
@@ -65,6 +85,7 @@ const DEFAULT_CREDITS = {
 export const CUTSCENES = {
   intro_boot: {
     steps: [
+      { type: "stopBgm" },
       { type: "fade", duration: 1000, color: "#000" },
       { type: "requestName" },
       { type: "loadMap", mapName: "office", spawn: { x: 10, y: -5 }, skipSave: true },
@@ -83,6 +104,7 @@ export const CUTSCENES = {
       { type: "text", content: "Leaving the Lieutenant's office...", duration: 1500 },
       { type: "loadMap", mapName: "pd", spawn: { x: 3, y: 11 } },
       { type: "fade", duration: 800, color: "transparent" },
+      { type: "wait", duration: 1000 },
       { type: "showTutorial", id: "objectives" },
     ]
   },
@@ -90,9 +112,9 @@ export const CUTSCENES = {
     steps: [
       { type: "fade", duration: 600, color: "#000" },
       { type: "text", content: "Walking over to Detective Maya...", duration: 1200 },
-      { type: "movePlayer", target: { x: 31, y: 6 } },
-      { type: "moveNPC", npcId: "lucas", target: { x: 33, y: 6 }, direction: "up", duration: 400 },
-
+      { type: "movePlayer", target: { x: 20, y: 11 } },
+      { type: "moveNPC", npcId: "lucas", target: { x: 21, y: 10 }, direction: "right", duration: 400 },
+      { type: "moveNPC", npcId: "maya", target: { x: 23, y: 10 }, direction: "left", duration: 400 },
       { type: "fade", duration: 600, color: "transparent" }
     ]
   },
@@ -101,7 +123,7 @@ export const CUTSCENES = {
 
       { type: "fade", duration: 250, color: "#000" },
       { type: "text", content: " ", duration: 500 },
-      { type: "spawnNPC", npcId: "marcus", position: { x: 7, y: 10 }, gid: 1109, spriteId: "marcus", direction: "right" },
+      { type: "spawnNPC", npcId: "marcus", position: { x: 30, y: 4 }, gid: 1109, spriteId: "marcus", direction: "right" },
       { type: "fade", duration: 250, color: "transparent" },
     ]
   },
@@ -355,7 +377,7 @@ export const CUTSCENES = {
     steps: [
       { type: "fade", duration: 500, color: "#000" },
       {
-        type: "spawnNPC",
+        type: "moveNPC",
         npcId: "bobby",
         target: { x: 8, y: 10 },
         direction: "up",
@@ -410,10 +432,10 @@ export const CUTSCENES = {
   ending_master: {
     steps: [
       { type: "fade", duration: 700, color: "#000" },
-      { type: "wait", duration: 250 },
-
-      { type: "endingNarration", duration: 1900 },
-      { type: "fade", duration: 700, color: "transparent" },
+      { type: "wait", duration: 300 },
+      { type: "text", content: "THE END", duration: 2800 },
+      { type: "fade", duration: 500, color: "#000" },
+      { type: "showEndingScreen" },
       { type: "showCredits" },
     ],
   },
@@ -465,7 +487,7 @@ async function executeStep(step, context) {
     case "loadMap":
       await context.loadNamedMap(step.mapName, {
         deferBgm: !!step.deferBgm,
-        skipSave: !!step.skipSave, 
+        skipSave: !!step.skipSave,
       });
       if (step.spawn) {
         context.playerRef.current.x = step.spawn.x;
@@ -519,25 +541,33 @@ async function executeStep(step, context) {
       await playCutscene(picked, context);
       return;
     }
-
-    case "endingNarration": {
-      if (!context.ending) {
-        d
-        context.ending = resolveEnding(context.flags);
-        console.log([...context.flags].filter(f => f.startsWith("accused_")));
-
+    case "showEndingScreen": {
+      if (typeof context.setEndingScreen !== "function") {
+        console.warn("showEndingScreen: setEndingScreen missing from cutscene context");
+        return;
       }
 
-      const lines = buildNarrationLines(context.ending);
+      const ending = detectEnding(context.flags);
+      if (ending) saveSeenEnding(ending.id);
+      const seen = getSeenEndings();
 
-      for (const line of lines) {
-        context.setTransitionMessage(line);
-        await new Promise((r) => setTimeout(r, step.duration ?? 1800));
-        context.setTransitionMessage(null);
-        await new Promise((r) => setTimeout(r, 150));
-      }
-      return;
+      return new Promise((resolve) => {
+        context.setEndingScreen({
+          visible: true,
+          currentEnding: ending,
+          endings: ENDINGS.map(e => ({
+            ...e,
+            seen: seen.has(e.id),
+            isCurrent: e.id === ending?.id,
+          })),
+          onContinue: () => {
+            context.setEndingScreen({ visible: false });
+            resolve();
+          },
+        });
+      });
     }
+
     case "showCredits": {
       if (typeof context.setCreditsOverlay !== "function") {
         console.warn("showCredits: setCreditsOverlay missing from cutscene context");
@@ -552,6 +582,7 @@ async function executeStep(step, context) {
         onContinue: () => {
           if (context.flags instanceof Set) context.flags.clear();
           if (context.GAME?.metadata?.clear) context.GAME.metadata.clear();
+          try { localStorage.removeItem("detective_save"); } catch { }
           if (typeof context.goToMainMenu === "function") {
             context.goToMainMenu();
           } else {
@@ -574,10 +605,18 @@ async function executeStep(step, context) {
       return new Promise(resolve => {
         context.flags.clear();
         context.GAME.metadata.clear();
-        const name = prompt("Detective, enter your name:");
-        context.flags.add("named_player");
-        context.GAME.metadata.set("playerName", name || "Detective");
-        resolve();
+        context.GAME.clues.clear();
+        if (context.GAME?.claims) context.GAME.claims = {};
+
+        context.setNameInput({
+          visible: true,
+          onSubmit: (name) => {
+            context.flags.add("named_player");
+            context.GAME.metadata.set("playerName", name || "Detective");
+            context.setNameInput({ visible: false, onSubmit: null });
+            resolve();
+          },
+        });
       });
 
     default:

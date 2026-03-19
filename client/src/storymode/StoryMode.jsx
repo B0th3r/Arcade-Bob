@@ -214,6 +214,57 @@ function TutorialHint({ anchorRef, anchorMobileRef, steps = [], onDismiss }) {
     </div>
   );
 }
+function NameInputField({ onSubmit }) {
+  const [value, setValue] = useState("");
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    const t = setTimeout(() => inputRef.current?.focus(), 100);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleSubmit = () => {
+    const trimmed = value.trim();
+    onSubmit?.(trimmed || "Detective");
+  };
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onKeyDown={e => { if (e.key === "Enter") handleSubmit(); }}
+        maxLength={20}
+        placeholder="Detective"
+        style={{
+          width: "100%", background: "rgba(0,0,0,0.4)",
+          border: "1px solid rgba(120,95,50,0.4)", borderBottom: "1px solid rgba(200,168,74,0.4)",
+          color: "#e8d5a0", fontFamily: "'Courier Prime', monospace",
+          fontSize: "1rem", padding: "10px 12px", letterSpacing: "0.06em",
+          outline: "none", marginBottom: "1rem", boxSizing: "border-box",
+        }}
+      />
+      <button
+        onClick={handleSubmit}
+        style={{
+          width: "100%", background: "rgba(160,118,40,0.08)",
+          border: "1px solid rgba(160,118,40,0.4)", color: "rgba(200,168,74,0.85)",
+          fontFamily: "'Courier Prime', monospace", fontSize: "11px",
+          letterSpacing: "0.2em", padding: "10px", cursor: "pointer",
+        }}
+        onMouseEnter={e => e.currentTarget.style.background = "rgba(160,118,40,0.16)"}
+        onMouseLeave={e => e.currentTarget.style.background = "rgba(160,118,40,0.08)"}
+      >
+        BEGIN INVESTIGATION
+      </button>
+      <div style={{ marginTop: "0.75rem", fontSize: 10, letterSpacing: "0.14em",
+        color: "rgba(120,95,50,0.4)", textAlign: "center" }}>
+        PRESS ENTER OR CLICK TO CONTINUE
+      </div>
+    </div>
+  );
+}
 function createNpc({ id, name, x, y, gid, dialogueId, spriteId, direction = "down", staticDirection = false }) {
   return { id, name, x, y, gid, dialogueId, spriteId, direction, defaultDirection: direction, staticDirection, cooldownMs: 400, _lastTalkAt: 0, };
 }
@@ -250,10 +301,17 @@ export default function App() {
   const [objectivesMinimized, setObjectivesMinimized] = useState(true);
   const viewColsRef = useRef(VIEW_COLS);
   const viewRowsRef = useRef(VIEW_ROWS);
+  const [nameInput, setNameInput] = useState({ visible: false, onSubmit: null });
   const [activeTutorial, setActiveTutorial] = useState(null);
   const [creditsOverlay, setCreditsOverlay] = useState({
     visible: false,
     credits: null,
+    onContinue: null,
+  });
+  const [endingScreen, setEndingScreen] = useState({
+    visible: false,
+    currentEnding: null,
+    endings: [],
     onContinue: null,
   });
 
@@ -276,7 +334,7 @@ export default function App() {
         keysRef.current.delete('p');
       }
 
-      if (keysRef.current.has('r')) {
+      if (keysRef.current.has('0')) {
         localStorage.removeItem("detective_save");
         window.location.reload();
         keysRef.current.clear();
@@ -534,7 +592,13 @@ export default function App() {
         DIALOGUE,
         flags: GAME.flags,
         GAME,
-        setFadeOverlay
+        setFadeOverlay,
+        stopBgm,
+        setEndingScreen,
+        setCreditsOverlay,
+        goToMainMenu,
+        setNameInput,
+        __resolveCreditsClose: null,
       });
     }
   }, []);
@@ -593,6 +657,7 @@ export default function App() {
       flags: GAME.flags,
       setFadeOverlay,
       setCreditsOverlay,
+      setEndingScreen,
       __resolveCreditsClose: null,
       goToMainMenu,
       waitForDialogueToEnd: () =>
@@ -686,6 +751,10 @@ export default function App() {
         setFadeOverlay,
         playBgm,
         stopBgm,
+        setEndingScreen,
+        setCreditsOverlay,
+        goToMainMenu,
+        __resolveCreditsClose: null,
         showTutorial: (id) => {
           if (id === "map" && !GAME.flags.has("hint_map_seen")) {
             setActiveTutorial({
@@ -764,6 +833,10 @@ export default function App() {
           setFadeOverlay,
           playBgm,
           stopBgm,
+          setEndingScreen,
+          setCreditsOverlay,
+          goToMainMenu,
+          __resolveCreditsClose: null,
           showTutorial: (id) => {
             if (id === "map" && !GAME.flags.has("hint_map_seen")) setShowMapHint(true);
             if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) setShowObjectivesHint(true);
@@ -991,7 +1064,7 @@ export default function App() {
       if (GAME.flags.has("lucas_maya_reject")) {
         spawnList = spawnList.filter(npc => npc.id !== "maya");
       }
-     
+
     }
     if (name === "pd") {
       if (lucasActive) {
@@ -1042,7 +1115,7 @@ export default function App() {
 
       if (timActive) {
         spawnList.push(
-          { id: "timArgue", name: "Tim", x: 33, y: 12, gid: 451, dialogueId: "johnTim", spriteId: "tim", direction: "left", });
+          { id: "timArgue", name: "Tim", x: 33, y: 12, gid: 451, spriteId: "tim", direction: "left", });
       }
     }
     if (johnTimActive && name == "johnsHouse") {
@@ -1064,7 +1137,7 @@ export default function App() {
           direction: "up",
         });
         if (comfortScene) {
-          spawnList = spawnList.filter(n => n.id !== "bobby"  && n.id !== "marcus" );
+          spawnList = spawnList.filter(n => n.id !== "bobby" && n.id !== "marcus");
           spawnList.push({
             id: "bobby",
             x: 9,
@@ -1397,6 +1470,10 @@ export default function App() {
             setFadeOverlay,
             playBgm,
             stopBgm,
+            setEndingScreen,
+            setCreditsOverlay,
+            goToMainMenu,
+            __resolveCreditsClose: null,
             showTutorial: (id) => {
               if (id === "map" && !GAME.flags.has("hint_map_seen")) {
                 setActiveTutorial({
@@ -2065,16 +2142,138 @@ export default function App() {
               )}
 
               <DialogueOverlay dialogue={dialogue} setDialogue={setDialogue} />
+              {nameInput.visible && (
+                <div style={{
+                  position: "fixed", inset: 0, zIndex: 9999,
+                  background: "rgba(2,1,0,0.85)", backdropFilter: "blur(4px)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  padding: "1rem",
+                  fontFamily: "'Courier Prime', 'Courier New', monospace",
+                }}>
+                  <div style={{
+                    background: "linear-gradient(175deg, #141008 0%, #0e0b06 100%)",
+                    border: "1px solid rgba(120,95,50,0.35)",
+                    boxShadow: "0 0 60px rgba(0,0,0,0.9)",
+                    padding: "2rem", width: "100%", maxWidth: "400px",
+                    position: "relative",
+                  }}>
+                    {/* Red bar */}
+                    <div style={{
+                      position: "absolute", top: 0, left: 0, right: 0, height: 2,
+                      background: "linear-gradient(90deg, transparent, rgba(160,35,35,0.65), transparent)"
+                    }} />
+
+                    <div style={{ fontSize: 9, letterSpacing: "0.3em", color: "rgba(140,108,48,0.45)", marginBottom: 12 }}>
+                      DETECTIVE'S FIELD NOTES
+                    </div>
+                    <div style={{
+                      fontFamily: "'Special Elite', monospace", fontSize: "1.4rem",
+                      color: "#c8a84a", marginBottom: "1.5rem", letterSpacing: "0.06em"
+                    }}>
+                      What's your name, Detective?
+                    </div>
+
+                    <NameInputField onSubmit={nameInput.onSubmit} />
+                  </div>
+                </div>
+              )}
+              {endingScreen.visible && (
+                <div className="fixed inset-0 z-[9998] text-white flex items-center justify-center p-6"
+                  style={{ background: "linear-gradient(175deg, #141008 0%, #0e0b06 50%, #0a0806 100%)", fontFamily: "'Courier Prime', 'Courier New', monospace" }}
+                >
+                  <div style={{
+                    position: "absolute", top: 0, left: 0, right: 0, height: 2,
+                    background: "linear-gradient(90deg, transparent, rgba(160,35,35,0.65) 25%, rgba(160,35,35,0.65) 75%, transparent)"
+                  }} />
+
+                  <div className="w-full max-w-2xl relative z-10">
+                    {/* Header */}
+                    <div className="mb-8 text-center">
+                      <div style={{ fontSize: 10, letterSpacing: "0.3em", color: "rgba(140,108,48,0.5)", marginBottom: 8 }}>
+                        CASE CLOSED
+                      </div>
+                      <h1 style={{ fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: "clamp(1.6rem,4vw,2.4rem)", color: "#c8a84a", letterSpacing: "0.08em", margin: 0 }}>
+                        Case Files
+                      </h1>
+                      {endingScreen.currentEnding && (
+                        <div style={{ marginTop: 8, fontSize: 12, color: "rgba(160,130,70,0.55)", letterSpacing: "0.12em" }}>
+                          YOU REACHED — <span style={{ color: "rgba(200,168,74,0.85)" }}>{endingScreen.currentEnding.title.toUpperCase()}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Endings grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
+                      {endingScreen.endings.map((e) => (
+                        <div key={e.id} style={{
+                          padding: "14px 16px",
+                          border: e.isCurrent
+                            ? "1px solid rgba(200,168,74,0.55)"
+                            : "1px solid rgba(120,95,50,0.2)",
+                          background: e.isCurrent
+                            ? "rgba(160,118,40,0.08)"
+                            : "rgba(0,0,0,0.2)",
+                          position: "relative",
+                          opacity: e.seen || e.isCurrent ? 1 : 0.5,
+                        }}>
+                          {e.isCurrent && (
+                            <div style={{
+                              position: "absolute", top: -1, left: 0, right: 0, height: 2,
+                              background: "linear-gradient(90deg, transparent, rgba(200,168,74,0.5), transparent)"
+                            }} />
+                          )}
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                            <div style={{ fontFamily: "'Special Elite', monospace", fontSize: 14, color: e.seen || e.isCurrent ? "#c8a84a" : "rgba(160,130,70,0.5)", letterSpacing: "0.06em" }}>
+                              {e.title}
+                            </div>
+                            {e.isCurrent && (
+                              <div style={{ fontSize: 9, letterSpacing: "0.2em", color: "rgba(200,168,74,0.7)", border: "1px solid rgba(200,168,74,0.3)", padding: "2px 6px" }}>
+                                REACHED
+                              </div>
+                            )}
+                            {e.seen && !e.isCurrent && (
+                              <div style={{ fontSize: 9, letterSpacing: "0.2em", color: "rgba(120,95,50,0.5)" }}>
+                                SEEN
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ fontSize: 11, lineHeight: 1.6, color: e.seen || e.isCurrent ? "rgba(185,155,90,0.75)" : "rgba(120,95,50,0.45)", fontStyle: e.seen || e.isCurrent ? "normal" : "italic" }}>
+                            {e.seen || e.isCurrent ? e.description : "Complete this ending to unlock."}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Progress */}
+                    <div style={{ marginBottom: 24, textAlign: "center", fontSize: 10, letterSpacing: "0.2em", color: "rgba(120,95,50,0.45)" }}>
+                      {endingScreen.endings.filter(e => e.seen || e.isCurrent).length} / {endingScreen.endings.length} ENDINGS DISCOVERED
+                    </div>
+
+                    <div className="flex justify-center">
+                      <button
+                        style={{
+                          background: "transparent", border: "1px solid rgba(160,118,40,0.4)", color: "rgba(200,168,74,0.8)",
+                          padding: "10px 32px", fontFamily: "'Courier Prime', monospace", fontSize: 11, letterSpacing: "0.2em", cursor: "pointer"
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "rgba(160,118,40,0.08)"; e.currentTarget.style.borderColor = "rgba(200,168,74,0.65)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = "rgba(160,118,40,0.4)"; }}
+                        onClick={() => endingScreen.onContinue?.()}
+                      >
+                        VIEW CREDITS
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
               {creditsOverlay.visible && (
                 <div className="fixed inset-0 z-[9999] bg-black/95 text-white flex items-center justify-center p-6">
                   <div className="w-full max-w-xl">
                     <div className="text-center text-2xl font-bold mb-6">
                       {creditsOverlay.credits?.title ?? "CREDITS"}
                     </div>
-
                     <div className="space-y-5 max-h-[65vh] overflow-auto px-2">
                       {(creditsOverlay.credits?.sections ?? []).map((sec, i) => (
-                        <div className="text-sm opacity-90 space-y-2">
+                        <div key={i} className="text-sm opacity-90 space-y-2">
                           {sec.lines.map((line, j) => (
                             <div key={j}>
                               <div>{typeof line === "string" ? line : line.main}</div>

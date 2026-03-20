@@ -83,11 +83,10 @@ const DEFAULT_CREDITS = {
 };
 
 export const CUTSCENES = {
-  intro_boot: {
+  intro_office: {
     steps: [
       { type: "stopBgm" },
       { type: "fade", duration: 1000, color: "#000" },
-      { type: "requestName" },
       { type: "loadMap", mapName: "office", spawn: { x: 10, y: -5 }, skipSave: true },
       { type: "fade", duration: 600, color: "transparent" },
       {
@@ -96,6 +95,23 @@ export const CUTSCENES = {
         dialogueId: "lieutenant",
         nodeId: "intro"
       },
+    ]
+  },
+  intro_boot: {
+    steps: [
+      { type: "stopBgm" },
+      { type: "fade", duration: 1000, color: "#000" },
+      { type: "requestName"},
+      { type: "loadMap", mapName: "tutorial", spawn: { x: 23, y: 3 }, skipSave: true },
+      { type: "fade", duration: 600, color: "transparent" },
+      {
+        type: "startDialogue",
+        npcId: "ace",
+        dialogueId: "tutorial",
+        nodeId: "call_out"
+      },
+      { type: "wait", duration: 500 },
+      { type: "showTutorial", id: "movement" },
     ]
   },
   leave_office: {

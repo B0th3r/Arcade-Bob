@@ -77,9 +77,17 @@ function useIsTouch() {
   const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
-    setIsTouch(
-      "ontouchstart" in window || (navigator.maxTouchPoints ?? 0) > 0
-    );
+    const check = () => {
+      // matchMedia pointer check is more reliable than maxTouchPoints alone
+      const coarsePointer = window.matchMedia("(pointer: coarse)").matches;
+      const hasTouch = "ontouchstart" in window || (navigator.maxTouchPoints ?? 0) > 0;
+      setIsTouch(coarsePointer && hasTouch);
+    };
+
+    check();
+    const mq = window.matchMedia("(pointer: coarse)");
+    mq.addEventListener("change", check);
+    return () => mq.removeEventListener("change", check);
   }, []);
 
   return isTouch;
@@ -258,8 +266,10 @@ function NameInputField({ onSubmit }) {
       >
         BEGIN INVESTIGATION
       </button>
-      <div style={{ marginTop: "0.75rem", fontSize: 10, letterSpacing: "0.14em",
-        color: "rgba(120,95,50,0.4)", textAlign: "center" }}>
+      <div style={{
+        marginTop: "0.75rem", fontSize: 10, letterSpacing: "0.14em",
+        color: "rgba(120,95,50,0.4)", textAlign: "center"
+      }}>
         PRESS ENTER OR CLICK TO CONTINUE
       </div>
     </div>
@@ -314,7 +324,7 @@ export default function App() {
     endings: [],
     onContinue: null,
   });
-
+  const talkBtnRef = useRef(null);
   const [mapOpen, setMapOpen] = useState(false);
   const dialogueDoneResolverRef = useRef(null);
   const [objectivesRefresh, setObjectivesRefresh] = useState(0);
@@ -428,7 +438,7 @@ export default function App() {
     worldBufferRef.current = buf;
     worldBufferMetaRef.current = { mapName, w, h };
   }
-  const NO_SAVE_MAPS = new Set(["office", "jail"]);
+  const NO_SAVE_MAPS = new Set(["office", "jail", "tutorial"]);
   function saveGame() {
     if (!currentMapNameRef.current) return;
     if (NO_SAVE_MAPS.has(currentMapNameRef.current)) return;
@@ -485,7 +495,6 @@ export default function App() {
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
-
   useEffect(() => {
     const el = viewportRef.current;
     if (!el) return;
@@ -601,7 +610,26 @@ export default function App() {
         setCreditsOverlay,
         goToMainMenu,
         setNameInput,
+        waitForDialogueToEnd: () =>
+          new Promise((resolve) => {
+            dialogueDoneResolverRef.current = resolve;
+          }),
         __resolveCreditsClose: null,
+        showTutorial: (id) => {
+          if (id === "movement" && !GAME.flags.has("hint_movement_seen")) {
+            setActiveTutorial({
+              hintId: "movement",
+              anchorRef: null,
+              anchorMobileRef: null,
+              steps: [
+                isTouch
+                  ? "Use the D-pad in the bottom left to move around."
+                  : "Use WASD or arrow keys to move around.",
+                "Walk over to Ace to continue.",
+              ]
+            });
+          }
+        },
       });
     }
   }, []);
@@ -621,6 +649,7 @@ export default function App() {
   useEffect(() => {
 
     const cutsceneTriggers = [
+      { flag: "cutscene_intro_office", cutsceneId: "intro_office" },
       { flag: "cutscene_leave_office", cutsceneId: "leave_office" },
       { flag: "cutscene_going_to_maya", cutsceneId: "going_to_maya" },
       { flag: "cutscene_marcus_enters", cutsceneId: "marcus_enters" },
@@ -1235,14 +1264,13 @@ export default function App() {
             "hover:bg-slate-800/90 active:scale-[0.98] transition",
             isTouch
               ? "top-3 right-3 h-11 w-11"
-              : "bottom-4 right-44 gap-2 px-3 py-2"
+              : "top-3 right-3 gap-2 px-3 py-2"
           ].join(" ")}
         >
           <MapIcon className="w-5 h-5 text-[rgba(200,168,74,0.9)]" />
           {!isTouch && (
             <>
               <span className="text-sm font-medium text-slate-100">Map</span>
-              <span className="text-xs text-slate-400">[M]</span>
             </>
           )}
         </button>
@@ -1359,7 +1387,7 @@ export default function App() {
   function handleMovement(now) {
     const anim = animRef.current;
 
-   if (dialogue || presenting || mapOpenRef.current || tutorialActiveRef.current){
+    if (dialogue || presenting || mapOpenRef.current || tutorialActiveRef.current) {
       return;
     }
 
@@ -1405,10 +1433,24 @@ export default function App() {
     else if (left && !right) tryStep(-1, 0);
     else if (right && !left) tryStep(1, 0);
     else return;
-
     if (p.x !== ox || p.y !== oy) {
       lastStepRef.current = now;
       checkMapExit();
+    }
+    if (
+      currentMapNameRef.current === "tutorial" &&
+      !GAME.flags.has("hint_talk_seen") &&
+      !tutorialActiveRef.current
+    ) {
+      const ace = npcs.find(n => n.id === "ace");
+      if (ace && isAdjacentToPlayer(ace.x, ace.y)) {
+        setActiveTutorial({
+          hintId: "talk",
+          anchorRef: null,
+          anchorMobileRef: isTouch ? talkBtnRef : null,
+          steps: [isTouch ? "Tap the Talk button to talk to Ace." : "Press E to talk to Ace."],
+        });
+      }
     }
   }
   useEffect(() => {
@@ -1741,6 +1783,15 @@ export default function App() {
       }
     };
   }, [dialogue?.dlgId, dialogue?.nodeId, segmentIndex, isAutoDialogue, autoSpeed]);
+  function getExitDirection(exit, map) {
+    if (exit.y <= 1) return "up";
+    if (exit.y >= map.height - 2) return "down";
+    if (exit.x <= 1) return "left";
+    if (exit.x >= map.width - 2) return "right";
+    return "up";
+  }
+
+  const ARROW = { up: "↑", down: "↓", left: "←", right: "→" };
   function isAdjacentToPlayer(tx, ty) {
     const p = playerRef.current;
     if (currentMapNameRef.current === "shop") {
@@ -1812,75 +1863,32 @@ export default function App() {
         for (const exit of mapDef.exits) {
           const rx = (exit.x - cam.x) * tw;
           const ry = (exit.y - cam.y) * th;
-
-          // Pulsing glow animation
-          const pulseSpeed = 0.002;
-          const pulseValue = Math.sin(now * pulseSpeed) * 0.5 + 0.5;
+          const cx = rx + tw / 2;
+          const cy = ry + th / 2;
+          const pulse = Math.sin(now * 0.002) * 0.3 + 0.7;
+          const dir = getExitDirection(exit, map);
+          const arrow = ARROW[dir];
 
           ctx.save();
 
-          // Outer glow
-          const gradient = ctx.createRadialGradient(
-            rx + tw / 2, ry + th / 2, 0,
-            rx + tw / 2, ry + th / 2, tw * (1.2 + pulseValue * 0.3)
-          );
-          gradient.addColorStop(0, `rgba(34, 211, 238, ${0.4 + pulseValue * 0.3})`);
-          gradient.addColorStop(0.5, `rgba(34, 211, 238, ${0.2 + pulseValue * 0.2})`);
-          gradient.addColorStop(1, 'rgba(34, 211, 238, 0)');
+          // square glow
+          const glowSize = tw * 1.6;
+          const grd = ctx.createRadialGradient(cx, cy, 0, cx, cy, glowSize);
+          grd.addColorStop(0, `rgba(200,160,70,${0.22 * pulse})`);
+          grd.addColorStop(0.5, `rgba(180,130,40,${0.10 * pulse})`);
+          grd.addColorStop(1, "rgba(180,130,40,0)");
+          ctx.fillStyle = grd;
+          ctx.fillRect(cx - glowSize, cy - glowSize, glowSize * 2, glowSize * 2);
 
-          ctx.fillStyle = gradient;
-          ctx.fillRect(rx - tw, ry - th, tw * 3, th * 3);
-
-          // Rotating border effect
-          const rotation = (now * 0.001) % (Math.PI * 2);
-          ctx.translate(rx + tw / 2, ry + th / 2);
-          ctx.rotate(rotation);
-
-          // Draw rotating corners
-          const cornerSize = tw * 0.3;
-          const offset = tw * 0.35;
-          ctx.strokeStyle = `rgba(34, 211, 238, ${0.7 + pulseValue * 0.3})`;
-          ctx.lineWidth = 2;
-
-          for (let i = 0; i < 4; i++) {
-            ctx.save();
-            ctx.rotate((Math.PI / 2) * i);
-            ctx.beginPath();
-            ctx.moveTo(offset, -offset);
-            ctx.lineTo(offset + cornerSize, -offset);
-            ctx.lineTo(offset, -offset + cornerSize);
-            ctx.stroke();
-            ctx.restore();
-          }
-
-          ctx.restore();
-
-          // Draw arrow pointing up with shimmer
-          ctx.save();
-          const arrowX = rx + tw / 2;
-          const arrowY = ry + th / 2;
-
-          ctx.shadowColor = 'rgba(34, 211, 238, 0.8)';
-          ctx.shadowBlur = 8 + pulseValue * 4;
-          ctx.fillStyle = `rgba(34, 211, 238, ${0.9 + pulseValue * 0.1})`;
-
-          ctx.beginPath();
-          ctx.moveTo(arrowX, arrowY - th * 0.25);
-          ctx.lineTo(arrowX - tw * 0.2, arrowY + th * 0.1);
-          ctx.lineTo(arrowX + tw * 0.2, arrowY + th * 0.1);
-          ctx.closePath();
-          ctx.fill();
-
-          // Add small particles floating up
-          const particleY = (now * 0.05) % th;
-          ctx.fillStyle = `rgba(34, 211, 238, ${1 - particleY / th})`;
-          for (let i = 0; i < 3; i++) {
-            const px = arrowX + (Math.sin(now * 0.003 + i) * tw * 0.15);
-            const py = arrowY + th * 0.2 - particleY + (i * th * 0.15);
-            ctx.beginPath();
-            ctx.arc(px, py, 2, 0, Math.PI * 2);
-            ctx.fill();
-          }
+          // Arrow
+          ctx.font = `${Math.floor(tw * 0.9)}px sans-serif`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.lineWidth = 3;
+          ctx.strokeStyle = "rgba(0,0,0,0.6)";
+          ctx.strokeText(arrow, cx, cy);
+          ctx.fillStyle = `rgba(200,160,70,${pulse})`;
+          ctx.fillText(arrow, cx, cy);
 
           ctx.restore();
         }
@@ -2088,6 +2096,7 @@ export default function App() {
                   onPress={press}
                   onRelease={release}
                   show={!presenting}
+                  talkBtnRef={talkBtnRef}
                 />
               )}
               <ObjectivesPanel

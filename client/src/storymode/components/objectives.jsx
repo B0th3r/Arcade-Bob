@@ -2,10 +2,17 @@ import { useState, useEffect, useRef } from 'react';
 import { X, ChevronDown } from 'lucide-react';
 
 const OBJECTIVES_CONFIG = {
-  talk_to_ace: {
+  talk_to_ace_01: {
+    id: 'talk_to_ace',
+    title: 'Talk to Ace',
+    startsActive: true,
+    completesWhen: { flagsAny: ['talkedToAce'] },
+    waypoint: { type: "npc", id: "ace" }
+  },
+  talk_to_ace_02: {
     id: 'talk_to_ace',
     title: 'Talk to Ace to begin your investigation',
-    startsActive: true,
+    appearsWhen: { flagsAll: ["enter_pd"], },
     completesWhen: { flagsAny: ['started_investigation'] },
     waypoint: { type: "npc", id: "ace" }
   },
@@ -14,7 +21,7 @@ const OBJECTIVES_CONFIG = {
     title: 'Talk to your fellow officers',
     description: "Chat with Lucas, Bobby, and Jack & Alex",
     optional: true,
-    startsActive: true,
+    appearsWhen: { flagsAll: ["enter_pd"], },
     completesWhen: {
       conditions: [
         { flagsAny: ['started_investigation'] },
@@ -58,7 +65,7 @@ const OBJECTIVES_CONFIG = {
   check_on_lucas: {
     id: "check_on_lucas",
     title: "Check in on Lucas",
-    description: "Looks like Lucas's poem worked! I'll check in on him later if I feel like it.",
+    description: "Looks like Lucas's poem worked! I'll check in on him later if I feel like it. He should be in the City.",
     optional: true,
     appearsWhen: { flagsAll: ["poem_grade_good", "debriefed"], },
     completesWhen: { flagsAny: ['lucas_needs_flowers'] },
@@ -87,7 +94,8 @@ const OBJECTIVES_CONFIG = {
     description: "Buy flowers for Lucas.",
     optional: true,
     appearsWhen: { flagsAny: ['lucas_needs_flowers'] },
-    completesWhen: { flagsAny: ['flower_purchased'] }
+    completesWhen: { flagsAny: ['flower_purchased'] },
+    waypoint: { type: "npc", id: "florist" }
   },
   give_flowers_lucas: {
     id: 'give_flowers_lucas',
@@ -95,15 +103,15 @@ const OBJECTIVES_CONFIG = {
     optional: true,
     waypoint: { type: "npc", id: "lucas" },
     appearsWhen: { flagsAll: ['lucas_needs_flowers', 'flower_purchased'] },
-    completesWhen: { flagsAll: ['flower_delivered_lucas'] }
+    completesWhen: { flagsAny: ['hayes_screwed_lucas', 'you_screwed_lucas', 'flower_delivered_lucas'] }
   },
   give_flowers_maya: {
     id: 'give_flowers_maya',
-    title: 'Give the flowers to Maya.',
+    title: 'Give the flowers to Maya instead of Lucas.',
     optional: true,
     waypoint: { type: "npc", id: "maya" },
     appearsWhen: { flagsAll: ['flower_purchased'] },
-    completesWhen: { flagsAny: ['hayes_screwed_lucas', 'you_screwed_lucas'] }
+    completesWhen: { flagsAny: ['hayes_screwed_lucas', 'you_screwed_lucas', 'flower_delivered_lucas'] }
   },
   talk_to_gambler: {
     id: 'talk_to_gambler',
@@ -118,7 +126,7 @@ const OBJECTIVES_CONFIG = {
     title: 'Help Bobby with his investigation in the bar.',
     optional: true,
     appearsWhen: { flagsAll: ['bobby_investigation_bar'] },
-    completesWhen: { flagsAny: ['met_bobby_in_bar'] },
+    completesWhen: { flagsAny: ['BobbyDirty', 'BobbyGood'] },
     waypoint: { type: "npc", id: "bobby" }
   },
   big_sneak: {
@@ -135,7 +143,8 @@ const OBJECTIVES_CONFIG = {
     title: 'End Investigation',
     description: 'Talk to Detective Hayes to conclude the investigation',
     appearsWhen: { flagsAll: ['talkedToJim', 'talkedToDonna', 'talkedToJohn', 'talkedToSam'] },
-    completesWhen: { flagsAny: ['investigationConcluded'] }
+    completesWhen: { flagsAny: ['investigationConcluded'] },
+    waypoint: { type: "npc", id: "hayes" }
   }
 };
 
@@ -233,6 +242,7 @@ function ObjectivesPanel({
   btnRef,
   mobileBtnRef,
   onSave,
+  currentMap,
 }) {
   const [open, setOpen] = useState(defaultOpen);
   const [showCompleted, setShowCompleted] = useState(false);
@@ -244,6 +254,30 @@ function ObjectivesPanel({
   const panelVisible = useMounted();
   const dotBlink = useBlink(900);
   const [saveFlash, setSaveFlash] = useState(false);
+  const prevActiveCountRef = useRef(0);
+  const [hasNewObjective, setHasNewObjective] = useState(false);
+
+  useEffect(() => {
+    const active = [], completed = [];
+    Object.values(OBJECTIVES_CONFIG).forEach((objective) => {
+      if (!checkObjectiveAppears(objective, gameState)) return;
+      (checkObjectiveComplete(objective, gameState) ? completed : active).push(objective);
+    });
+    active.sort((a, b) => {
+      const ao = a.optional ? 1 : 0, bo = b.optional ? 1 : 0;
+      if (ao !== bo) return ao - bo;
+      return a.id.localeCompare(b.id);
+    });
+
+    if (active.length > prevActiveCountRef.current) {
+      setHasNewObjective(true);
+    }
+    prevActiveCountRef.current = active.length;
+
+    setActiveObjectives(active);
+    setCompletedObjectives(completed);
+    onActiveObjectives?.(active);
+  }, [gameState, refreshToken]);
 
   function handleManualSave() {
     onSave?.();
@@ -277,7 +311,13 @@ function ObjectivesPanel({
     queueMicrotask(() => closeBtnRef.current?.focus());
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [open]);
-
+  
+  const FLASH_STYLE = `
+  @keyframes objFlash {
+    0%, 100% { opacity: 1; border-color: rgba(200,80,80,0.6); }
+    50%       { opacity: 0.5; border-color: rgba(200,80,80,0.2); }
+  }
+`;
   function checkObjectiveAppears(objective, state) {
     if (objective.startsActive) return true;
     const cond = objective.appearsWhen;
@@ -327,17 +367,27 @@ function ObjectivesPanel({
     <>
       {/* Objectives button */}
       <div className="absolute pointer-events-none inset-0 z-50">
+         {currentMap !== "tutorial" && (
+          <>
         {/* Desktop */}
         <button
           ref={btnRef}
-          onClick={() => { onToggle?.(); setOpen(true); }}
+          onClick={() => { onToggle?.(); setOpen(true); setHasNewObjective(false); }}
           className="pointer-events-auto absolute hidden lg:flex items-center gap-2.5 bottom-4 right-4"
           aria-label="Open case notes"
-          style={{ ...triggerStyle, padding: "8px 14px 8px 11px", opacity: 0.95 }}
+          style={{
+            ...triggerStyle,
+            padding: "8px 14px 8px 11px", opacity: 0.95,
+            ...(hasNewObjective && {
+              animation: "objFlash 1.1s ease-in-out infinite",
+              border: "1px solid rgba(200,80,80,0.5)",
+            }),
+          }}
         >
+          <style>{FLASH_STYLE}</style>
           <NotebookIcon size={17} />
-          <span style={{ fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: 13, color: "rgba(200,168,74,0.9)", letterSpacing: "0.07em" }}>
-            Case Notes
+          <span style={{ fontFamily: "'Special Elite', 'Courier New', monospace", fontSize: 13, color: hasNewObjective ? "rgba(220,120,100,0.95)" : "rgba(200,168,74,0.9)", letterSpacing: "0.07em", transition: "color 0.3s ease" }}>
+            {hasNewObjective ? "New Objectives" : "Case Notes"}
           </span>
           {activeObjectives.length > 0 && (
             <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "1.3rem", height: "1.3rem", padding: "0 4px", background: requiredCount > 0 ? "rgba(160,40,40,0.18)" : "rgba(160,120,40,0.15)", border: `1px solid ${requiredCount > 0 ? "rgba(160,40,40,0.35)" : "rgba(160,120,40,0.3)"}`, fontFamily: "'Courier Prime', monospace", fontSize: 10, fontWeight: 700, color: requiredCount > 0 ? "rgba(200,80,80,0.9)" : "rgba(200,160,60,0.85)", letterSpacing: "0.04em" }}>
@@ -349,19 +399,27 @@ function ObjectivesPanel({
         {/* Mobile */}
         <button
           ref={mobileBtnRef}
-          onClick={() => { onToggle?.(); setOpen(true); }}
+          onClick={() => { onToggle?.(); setOpen(true); setHasNewObjective(false); }}
           className="pointer-events-auto absolute lg:hidden flex items-center gap-2 right-4 bottom-[calc(env(safe-area-inset-bottom)+5.25rem)]"
           aria-label="Open case notes"
-          style={{ ...triggerStyle, padding: "8px 12px 8px 10px", opacity: 0.95 }}
+          style={{
+            ...triggerStyle,
+            padding: "8px 12px 8px 10px", opacity: 0.95,
+            ...(hasNewObjective && { animation: "objFlash 1.1s ease-in-out infinite" }),
+          }}
         >
           <NotebookIcon size={16} />
-          <span style={{ fontFamily: "'Special Elite', monospace", fontSize: 13, color: "rgba(200,168,74,0.9)", letterSpacing: "0.06em" }}>Notes</span>
+          <span style={{ fontFamily: "'Special Elite', monospace", fontSize: 13, color: hasNewObjective ? "rgba(220,120,100,0.95)" : "rgba(200,168,74,0.9)", letterSpacing: "0.06em", transition: "color 0.3s ease" }}>
+            {hasNewObjective ? "New!" : "Notes"}
+          </span>
           {activeObjectives.length > 0 && (
             <span style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", minWidth: "1.2rem", height: "1.2rem", padding: "0 3px", background: "rgba(160,40,40,0.18)", border: "1px solid rgba(160,40,40,0.35)", fontFamily: "'Courier Prime', monospace", fontSize: 9, fontWeight: 700, color: "rgba(200,80,80,0.9)" }}>
               {activeObjectives.length}
             </span>
           )}
         </button>
+        </>
+         )}
       </div>
 
       {/* Panel overlay */}

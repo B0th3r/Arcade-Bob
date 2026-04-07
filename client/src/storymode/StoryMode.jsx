@@ -48,6 +48,8 @@ function useKeyboard() {
         ["w", "a", "s", "d", "arrowup", "arrowleft", "arrowdown", "arrowright", "e",
           "escape", "p", "m"].includes(k)
       ) {
+        // Doesn't block keys when typing in an input field
+        if (document.activeElement?.tagName === "INPUT") return;
         e.preventDefault();
       }
       keysRef.current.add(k);
@@ -335,7 +337,7 @@ export default function App() {
   const LARGE_MAPS = new Set(["neighborhood", "city"]);
   const isLargeMap = LARGE_MAPS.has(currentMapNameRef.current);
   const showMapButton = !!map && isLargeMap;
-  // Debug
+  /*
   useEffect(() => {
     const checkDebugKey = () => {
       if (keysRef.current.has('p')) {
@@ -354,6 +356,7 @@ export default function App() {
     const interval = setInterval(checkDebugKey, 100);
     return () => clearInterval(interval);
   }, []);
+  */
   useEffect(() => { mapOpenRef.current = mapOpen; }, [mapOpen]);
   useEffect(() => { tutorialActiveRef.current = !!activeTutorial; }, [activeTutorial]);
   useEffect(() => {
@@ -2109,6 +2112,7 @@ export default function App() {
                 btnRef={objBtnRef}
                 mobileBtnRef={objMobileBtnRef}
                 onSave={saveGame}
+                currentMap={currentMapNameRef.current}
               />
               <div className="absolute pointer-events-none inset-0 z-50">
                 <MapButton

@@ -6,7 +6,7 @@
 
 **Live Demo:** [https://arcadebob.com]
 
-**Estimated Playtime:** 30-45 minutes | **Endings:** Multiple (good, bad, secret)
+**Estimated Playtime:** 45-60 minutes | **Endings:** 4 (Redemption, Marcus, Fired, Arrested)
 
 ---
 
@@ -23,7 +23,7 @@
 - **Real-time multiplayer** via WebSocket — Pluggable game system with reducer-based state management
 - **Performance optimizations** — Offscreen buffering and viewport culling to reduce draw calls
 - **Tiled map integration** — Custom TMJ parser, GID decoding, multi-tileset support, async asset loading
-- **Audio system** — Voice playback manager with auto-progression timing and manual override
+- **Audio system** — Howler.js dual-track manager (BGM + voice) with crossfade transitions, dynamic track selection based on story state, auto-ducking during voiced lines, voice caching, and platform-aware iOS/Android autoplay handling
 
 **Tech Stack:** React + Vite, Node.js + Socket.IO, Web Audio API, Canvas API, custom state machine
 
@@ -66,8 +66,8 @@ But this isn't just about solving a case. Lucas needs dating advice. Tim's causi
 - **Waypoint markers** — NPCs glow when you're close, objectives guide you to key locations
 
 ### 🌆 Explorable World
-- **3 main maps** (Police Station, Neighborhood, The Bar)
-- **Side stories** — Help Lucas with his love life, avoid Tim's chaos, earn Marcus's respect
+- **4 main maps** (Police Station, Neighborhood, The Bar, The City)
+- **Side stories** — Help Lucas with his love life, Find "The Big Sneak", earn Marcus's respect
 - **Mobile-friendly** — Touch controls with haptic feedback + D-pad
 
 ---
@@ -102,14 +102,15 @@ Built on a **pluggable game architecture** where each game exports:
 ## Screenshots
 
 ### Story Mode: Detective Investigation
-![Neighborhood Investigation](docs/neighborhood.png)  
+![Neighborhood Investigation](docs/neighborhood.png)
+![bar](docs/bar.png)  
 *Question suspects, gather evidence, spot the lies.*
 
 ![Case Objectives](docs/objectives.png)  
 *Track leads and case progress with a dynamic objective system.*
 
-![Lieutenant's Office](docs/lieutenant.png)  
-*Your boss is not happy. Choose your words carefully.*
+![Police Department](docs/pd.png)  
+*Tensions are high in the police department*
 
 ### Multiplayer: Arcade Classics
 ![Room Entry](docs/lobbyJoin.png)  
@@ -130,7 +131,7 @@ Built on a **pluggable game architecture** where each game exports:
 
 - **Engine:** Custom 2D tile-based renderer with Tiled map support (.tmj)
 - **Dialogue System:** Conditional branching with flag/clue/metadata tracking
-- **Audio:** Web Audio API with voice playback + auto-progression timing
+- **Audio:** Howler.js with BGM crossfading, dynamic track selection, voice ducking, voice caching, and iOS/Android autoplay fallback
 - **Scoring:** Dynamic evaluation (interrogation points, poem coherence, evidence)
 - **Frontend:** React, Vite, Tailwind CSS
 - **Multiplayer Backend:** Node.js, Express, Socket.IO
@@ -255,6 +256,20 @@ for (const objective of activeObjectives) {
 }
 ```
 
+### Audio System
+Howler.js-based dual-track manager handling BGM and voice independently:
+
+**BGM Manager**
+- Crossfades between tracks with configurable fade duration (default 600ms) — old track fades out while new track fades in simultaneously
+- Dynamic track selection based on story state — e.g. neighborhood BGM switches to a second track after a key story flag is set, evaluated at map load time
+- Pending stop system — prevents race conditions when tracks are swapped rapidly during cutscene transitions
+
+**Voice Manager**
+- Voice lines cached per `characterId:clipId` key — repeated lines reuse the same `Howl` instance without reloading
+- Auto-duck system — BGM volume lowers when a voice line plays, restores after a configurable hold duration (default 180ms) with smooth fade back up
+- Duration tracking — voice durations cached after first load for auto-progression timing without re-reading audio metadata
+
+
 ### WebSocket Multiplayer (Arcade Mode)
 Real-time game rooms with state synchronization:
 
@@ -362,14 +377,23 @@ npm run dev  # http://localhost:5173
 ## Storymode Credits
 
 ### Voice Cast
-**Ace** — Actor | **Alex** — Henry | **Bartender** — Keshawn | **Bobby** — Michael | **Delivery Girl** — Saisindhu | **Donna** — Riana | **Florist** — Anonymous | **Flower Promoter** — Anonymous | **Gambler** — Jaime | **Hayes** — Garnett | **Jack** — Keshawn | **Jane** — Kiona | **Jim** — Keshawn | **John** — Henry | **Lieutenant** — Robbie | **Lucas** — Marcus | **Marcus** — Eli | **Maya** — Michaela | **Sam** — Jewelean | **Tim** — Daniel
+**Ace** — Tailb | **Alex** — Henry | **Angry Patron** — Kelly | **Bartender** — Keshawn | **Bobby** — Michael | **Delivery Girl** — Saisindhu | **Donna** — Riana | **Florist** — Anonymous | **Flower Promoter** — Anonymous | **Frank** — Kelly | **Gambler** — Jaime | **Happy Patron** — Jennifer | **Hayes** — Garnett | **Jack** — Keshawn | **Jane** — Kiona | **Jenny** — Jennifer | **Jim** — Keshawn | **John** — Henry | **Lieutenant** — Robbie | **Lost Man** — Dejuan | **Lucas** — Marcus | **Marcus** — Eli | **Maya** — Michaela | **Sam** — Jewelean | **Tim** — Daniel
+
+### Music
+- **Main Menu Theme** — T-Yang
+- **Neighborhood Themes** — Holizna
+- **Bar Theme** — Holizna
+- **City Theme** — Holizna
+- **Police Department Theme** — Paweł Feszczuk *(Modified from original • CC BY 4.0)*
+- **Flower Shop Theme** — Ketsa *(Modified from original • CC BY 4.0)*
 
 ### Tilesets & Art
 - **35 Character Pixel Art** — yigitkinis
-- **Farm RPG 16x16 Tileset** — Emanuelle
-- **Pixel Cyberpunk Interior** — DyLESTorm
 - **City Pack** — NYKNCK
-- **Village Building Interior Tileset** — ay boy
+- **Modern Interiors** — LimeZu
+- **Modern Office** — LimeZu
+- **Pixel Lands Village** — Trislin
+- **Pixel Lands Interiors** — Trislin
 
 ---
 

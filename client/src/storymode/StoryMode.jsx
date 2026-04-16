@@ -597,43 +597,7 @@ export default function App() {
         setObjectivesRefresh(n => n + 1);
       }).catch(console.error);
     } else {
-      playCutscene("intro_boot", {
-        loadNamedMap,
-        playerRef,
-        setTransitionMessage,
-        setDialogue,
-        npcs,
-        setNpcs,
-        DIALOGUE,
-        flags: GAME.flags,
-        GAME,
-        setFadeOverlay,
-        stopBgm,
-        setEndingScreen,
-        setCreditsOverlay,
-        goToMainMenu,
-        setNameInput,
-        waitForDialogueToEnd: () =>
-          new Promise((resolve) => {
-            dialogueDoneResolverRef.current = resolve;
-          }),
-        __resolveCreditsClose: null,
-        showTutorial: (id) => {
-          if (id === "movement" && !GAME.flags.has("hint_movement_seen")) {
-            setActiveTutorial({
-              hintId: "movement",
-              anchorRef: null,
-              anchorMobileRef: null,
-              steps: [
-                isTouch
-                  ? "Use the D-pad in the bottom left to move around."
-                  : "Use WASD or arrow keys to move around.",
-                "Walk over to Ace to continue.",
-              ]
-            });
-          }
-        },
-      });
+      playCutscene("intro_boot",buildCutsceneContext());
     }
   }, []);
   useEffect(() => {
@@ -680,57 +644,10 @@ export default function App() {
       { flag: "cutscene_ending_master", cutsceneId: "ending_master" },
 
     ];
-
-    const context = {
-      loadNamedMap,
-      playerRef,
-      setTransitionMessage,
-      setDialogue,
-      npcs,
-      setNpcs,
-      DIALOGUE,
-      flags: GAME.flags,
-      setFadeOverlay,
-      setCreditsOverlay,
-      setEndingScreen,
-      __resolveCreditsClose: null,
-      goToMainMenu,
-      waitForDialogueToEnd: () =>
-        new Promise((resolve) => {
-          dialogueDoneResolverRef.current = resolve;
-        }),
-      playBgm,
-      stopBgm,
-      showTutorial: (id) => {
-        if (id === "map" && !GAME.flags.has("hint_map_seen")) {
-          setActiveTutorial({
-            hintId: "map",
-            anchorRef: mapBtnRef,
-            steps: [
-              "Press M or click here to open the map.",
-              "The map only appears in larger areas like the neighborhood and city.",
-            ]
-          });
-        }
-        if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
-          setActiveTutorial({
-            hintId: "objectives",
-            anchorRef: objBtnRef,
-            anchorMobileRef: objMobileBtnRef,
-            steps: [
-              "Press O or click here to open your Case Notes.",
-              "All active objectives appear here — check back as you progress.",
-              "You can also save your progress to continue later.",
-            ]
-          });
-        }
-      },
-    };
-
     for (const { flag, cutsceneId } of cutsceneTriggers) {
       if (GAME.flags.has(flag)) {
         GAME.flags.delete(flag);
-        playCutscene(cutsceneId, context);
+        playCutscene(cutsceneId, buildCutsceneContext());
         break;
       }
     }
@@ -775,46 +692,7 @@ export default function App() {
 
     if (choice.set) applySet(choice.set);
     if (choice.cutscene) {
-      playCutscene(choice.cutscene, {
-        loadNamedMap,
-        playerRef,
-        setTransitionMessage,
-        setDialogue,
-        npcs,
-        setNpcs,
-        flags: GAME.flags,
-        setFadeOverlay,
-        playBgm,
-        stopBgm,
-        setEndingScreen,
-        setCreditsOverlay,
-        goToMainMenu,
-        __resolveCreditsClose: null,
-        showTutorial: (id) => {
-          if (id === "map" && !GAME.flags.has("hint_map_seen")) {
-            setActiveTutorial({
-              hintId: "map",
-              anchorRef: mapBtnRef,
-              steps: [
-                "Press M or click here to open the map.",
-                "The map only appears in larger areas like the neighborhood and city.",
-              ]
-            });
-          }
-          if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
-            setActiveTutorial({
-              hintId: "objectives",
-              anchorRef: objBtnRef,
-              anchorMobileRef: objMobileBtnRef,
-              steps: [
-                "Press O or click here to open your Case Notes.",
-                "All active objectives appear here — check back as you progress.",
-                "You can also save your progress to continue later.",
-              ]
-            });
-          }
-        },
-      });
+      playCutscene(choice.cutscene,buildCutsceneContext());
     }
 
     if (choice.next === PROVOKE_RETURN_TOKEN) {
@@ -856,27 +734,7 @@ export default function App() {
     const next = dlg.nodes[nextId];
     if (next?.end) {
       if (next.endCutscene) {
-        playCutscene(next.endCutscene, {
-          loadNamedMap,
-          playerRef,
-          setTransitionMessage,
-          setDialogue,
-          npcs,
-          setNpcs,
-          DIALOGUE,
-          flags: GAME.flags,
-          setFadeOverlay,
-          playBgm,
-          stopBgm,
-          setEndingScreen,
-          setCreditsOverlay,
-          goToMainMenu,
-          __resolveCreditsClose: null,
-          showTutorial: (id) => {
-            if (id === "map" && !GAME.flags.has("hint_map_seen")) setShowMapHint(true);
-            if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) setShowObjectivesHint(true);
-          },
-        });
+        playCutscene(next.endCutscene, buildCutsceneContext());
       }
       setDialogue(null);
       if (dialogueDoneResolverRef.current) {
@@ -1386,7 +1244,81 @@ export default function App() {
       p.y = ny;
     }
   }
+  function buildCutsceneContext() {
+    return {
+      // Map
+      loadNamedMap,
+      playerRef,
+      setTransitionMessage,
+      setFadeOverlay,
 
+      // Dialogue
+      setDialogue,
+      DIALOGUE,
+      waitForDialogueToEnd: () =>
+        new Promise((resolve) => {
+          dialogueDoneResolverRef.current = resolve;
+        }),
+
+      // NPCs
+      npcs,
+      setNpcs,
+
+      // Game state
+      GAME,
+      flags: GAME.flags,
+
+      // UI
+      setNameInput,
+      setEndingScreen,
+      setCreditsOverlay,
+      goToMainMenu,
+      __resolveCreditsClose: null,
+
+      // Audio
+      playBgm,
+      stopBgm,
+
+      // Tutorials
+      showTutorial: (id) => {
+        if (id === "movement" && !GAME.flags.has("hint_movement_seen")) {
+          setActiveTutorial({
+            hintId: "movement",
+            anchorRef: null,
+            anchorMobileRef: null,
+            steps: [
+              isTouch
+                ? "Use the D-pad in the bottom left to move around."
+                : "Use WASD or arrow keys to move around.",
+              "Walk over to Ace to continue.",
+            ],
+          });
+        }
+        if (id === "map" && !GAME.flags.has("hint_map_seen")) {
+          setActiveTutorial({
+            hintId: "map",
+            anchorRef: mapBtnRef,
+            steps: [
+              "Press M or click here to open the map.",
+              "The map only appears in larger areas like the neighborhood and city.",
+            ],
+          });
+        }
+        if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
+          setActiveTutorial({
+            hintId: "objectives",
+            anchorRef: objBtnRef,
+            anchorMobileRef: objMobileBtnRef,
+            steps: [
+              "Press O or click here to open your Case Notes.",
+              "All active objectives appear here — check back as you progress.",
+              "You can also save your progress to continue later.",
+            ],
+          });
+        }
+      },
+    };
+  }
   function handleMovement(now) {
     const anim = animRef.current;
 
@@ -1505,47 +1437,7 @@ export default function App() {
         if (!playedSegmentCutscenesRef.current.has(key)) {
           playedSegmentCutscenesRef.current.add(key);
 
-          playCutscene(seg.cutscene, {
-            loadNamedMap,
-            playerRef,
-            setTransitionMessage,
-            setDialogue,
-            npcs,
-            setNpcs,
-            DIALOGUE,
-            flags: GAME.flags,
-            setFadeOverlay,
-            playBgm,
-            stopBgm,
-            setEndingScreen,
-            setCreditsOverlay,
-            goToMainMenu,
-            __resolveCreditsClose: null,
-            showTutorial: (id) => {
-              if (id === "map" && !GAME.flags.has("hint_map_seen")) {
-                setActiveTutorial({
-                  hintId: "map",
-                  anchorRef: mapBtnRef,
-                  steps: [
-                    "Press M or click here to open the map.",
-                    "The map only appears in larger areas like the neighborhood and city.",
-                  ]
-                });
-              }
-              if (id === "objectives" && !GAME.flags.has("hint_obj_seen")) {
-                setActiveTutorial({
-                  hintId: "objectives",
-                  anchorRef: objBtnRef,
-                  anchorMobileRef: objMobileBtnRef,
-                  steps: [
-                    "Press O or click here to open your Case Notes.",
-                    "All active objectives appear here — check back as you progress.",
-                    "You can also save your progress to continue later.",
-                  ]
-                });
-              }
-            },
-          });
+          playCutscene(seg.cutscene, buildCutsceneContext());
         }
       }
       if (seg?.voice && seg?.speaker) {
@@ -1589,7 +1481,7 @@ export default function App() {
     const onKey = (e) => {
       const k = e.key.toLowerCase();
 
-      if (k === "o" ) {
+      if (k === "o") {
         if (GAME.flags.has("named_player")) toggleObjectives();
         return;
       }

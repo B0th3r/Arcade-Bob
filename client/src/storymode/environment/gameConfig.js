@@ -4,6 +4,7 @@ const Bar_TMJ = new URL('../assets/maps/bar.tmj', import.meta.url).href;
 const JimDonnasHouse_TMJ = new URL('../assets/maps/jim_donnas_House.tmj', import.meta.url).href;
 const JohnsHouse_TMJ = new URL('../assets/maps/johns_house.tmj', import.meta.url).href;
 const Office_TMJ = new URL('../assets/maps/office.tmj', import.meta.url).href;
+const Tutorial_TMJ = new URL('../assets/maps/tutorial.tmj', import.meta.url).href;
 const Jail_TMJ = new URL('../assets/maps/jail.tmj', import.meta.url).href;
 const PD_TMJ = new URL('../assets/maps/pd.tmj', import.meta.url).href;
 const Shop_TMJ = new URL('../assets/maps/flower_shop.tmj', import.meta.url).href;
@@ -17,6 +18,13 @@ export const GAME = {
   metadata: new Map()
 };
 export const MAPS = {
+  tutorial: {
+    path: Tutorial_TMJ,
+    start: { x: 20, y: 5 },
+    npcs: [
+      { id: "ace", x: 6, y: 3, gid: 1105, dialogueId: "tutorial", direction: "right" },
+    ],
+  },
   office: {
     path: Office_TMJ,
     start: { x: 20, y: 5 },
@@ -38,11 +46,11 @@ export const MAPS = {
   pd: {
     path: PD_TMJ,
     start: { x: 3, y: 11 },
-    npcs: [{ id: "lucas", x: 24, y: 5, gid: 1105, dialogueId: "lucas", spriteId: "lucas", direction: "right" },
-    { id: "bobby", x: 10, y: 10, gid: 1105, dialogueId: "bobbyMarcus", direction: "up" },
+    npcs: [{ id: "lucas", x: 10, y: 10, gid: 1105, dialogueId: "lucas", spriteId: "lucas", direction: "up" },
+    { id: "bobby", x: 33, y: 4, gid: 1105, dialogueId: "bobbyMarcus", direction: "up" },
     { id: "jack", x: 37, y: 12, gid: 1105, dialogueId: "jackAlex" },
     { id: "alex", x: 36, y: 12, gid: 1105, dialogueId: "jackAlex" },
-    { id: "maya", x: 33, y: 4, gid: 1105, },
+    { id: "maya", x: 23, y: 10, gid: 1105, direction: "down" },
     { id: "ace", x: 38, y: 4, gid: 1105, dialogueId: "ace" },
     { id: "jenny", x: 26, y: 10, gid: 1105, dialogueId: "jenny", direction: "left" }
     ],
@@ -95,6 +103,8 @@ export const MAPS = {
       { id: "marcus", gid: 106, dialogueId: "marcus" },
       { id: "maya", gid: 106, dialogueId: "maya" },
       { id: "flower_promoter", x: 40, y: 25, gid: 106, dialogueId: "flower_promoter" },
+      { id: "ace", x: 18, y: 15, gid: 1105 },
+      { id: "city_npc1", x: 18, y: 17, gid: 3586, direction: "up" },
     ],
     exits: [
       { x: 39, y: 20, to: "bar", toStart: { x: 13, y: 23 } },
@@ -105,7 +115,7 @@ export const MAPS = {
   },
   neighborhood: {
     path: Neighborhood_TMJ,
-    start: { x: 40, y: 70 },
+    start: { x: 45, y: 67 },
     npcs: [
       { id: "hayes", x: 43, y: 67, gid: 437, dialogueId: "hayes", direction: "right" },
       { id: "sneak", x: 4, y: 70, gid: 437, dialogueId: "sneak", direction: "down", staticDirection: true },
@@ -129,7 +139,7 @@ export const MAPS = {
     { id: "donna", x: 9, y: 6, gid: 439, dialogueId: "jimDonna" }
     ],
     exits: [
-      { x: 6, y: 21, to: "neighborhood", toStart: { x: 14, y: 39 } },
+      { x: 6, y: 22, to: "neighborhood", toStart: { x: 14, y: 39 } },
     ],
     bgm: (game) => {
       if (game.flags.has("talkedToJane")) return "neighborhood_02";

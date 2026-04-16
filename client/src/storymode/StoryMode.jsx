@@ -1589,8 +1589,8 @@ export default function App() {
     const onKey = (e) => {
       const k = e.key.toLowerCase();
 
-      if (k === "o") {
-        toggleObjectives();
+      if (k === "o" ) {
+        if (GAME.flags.has("named_player")) toggleObjectives();
         return;
       }
 

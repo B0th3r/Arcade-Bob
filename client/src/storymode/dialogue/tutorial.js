@@ -24,7 +24,7 @@ const tutorialDialogue = {
         },
         call_out: {
             segments: [
-               { speaker: "ace", text: "Hey, get over here!",voice: "tutorial_01"},
+               { speaker: "ace", text: "Hey, over here!",voice: "tutorial_01"},
             ],
             choices: [
                 { label: "Okay.", next: "end_01" },
